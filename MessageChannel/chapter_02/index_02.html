@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>02</title>
+  </head>
+  <body>
+    <p>
+      index 02，<button onclick="sendMsgToIndex01()">发消息给index_01</button>
+    </p>
+  </body>
+  <script>
+    let port;
+
+    // index_02 接收 index_01 发来的消息
+    window.addEventListener("message", (evt) => {
+      const { data, ports } = evt;
+      if (data === "transfer port") {
+        console.log("index_02 receive msg: transfer port");
+        port = ports[0];
+      } else {
+        console.log(`index_02 receive msg: ${evt.data}`);
+      }
+    });
+
+    function sendMsgToIndex01() {
+      port?.postMessage("message from index_02.html");
+    }
+  </script>
+</html>

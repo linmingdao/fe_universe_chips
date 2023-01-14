@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Web Worker</title>
+  </head>
+  <body>
+    npx http-server 运行
+  </body>
+  <script>
+    const w1 = new Worker("js/w1.js");
+    const w2 = new Worker("js/w2.js");
+
+    //生成两个端口
+    const { port1, port2 } = new MessageChannel();
+
+    w1.postMessage(null, [port1]);
+    w2.postMessage(null, [port2]);
+  </script>
+</html>

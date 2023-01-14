@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>01</title>
+  </head>
+  <body>
+    <p>
+      index 01，<button onclick="sendMsgToIndex02()">发消息给index_02</button>
+    </p>
+    <iframe src="./index_02.html"></iframe>
+  </body>
+  <script>
+    const { port1, port2 } = new MessageChannel();
+    const iframe = document.querySelector("iframe");
+
+    iframe.addEventListener("load", () => transferPort(port2));
+
+    // index_01 接收 index_02 发来的消息
+    // 由于我们将 MessageChannel 的 port2 交给 index_02 了，所以，这里可以接收到 port2 发来的消息
+    port1.onmessage = (e) => {
+      console.log(`index_01 receive msg: ${e.data}`);
+    };
+
+    function transferPort(port) {
+      iframe.contentWindow.postMessage("transfer port", "*", [port]);
+    }
+
+    function sendMsgToIndex02() {
+      // index_01 向 index_02 发送消息，并把 MessageChannel 的 port2 控制权交给 index_02
+      iframe.contentWindow.postMessage("message from index_01.html", "*");
+      // 当然也可以用 port1 发送消息，port2 也会接收到
+    }
+  </script>
+</html>
