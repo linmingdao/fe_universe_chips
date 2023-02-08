@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <p>
+      演示使用
+      <a
+        href="https://developer.mozilla.org/en-US/docs/Web/API/Background_Tasks_API"
+      >
+        协作调度幕后任务
+      </a>
+      使用 <code>requestIdleCallback()</code>
+      方法。
+    </p>
+
+    <div class="container">
+      <div class="label">解码量子丝极谱发射中...</div>
+      <progress id="progress" value="0"></progress>
+      <button class="button" id="startButton">开始</button>
+      <div class="label counter">
+        任务 <span id="currentTaskNumber">0</span> /
+        <span id="totalTaskCount">0</span>
+      </div>
+    </div>
+
+    <div class="logBox">
+      <div class="logHeader">记录</div>
+      <div id="log"></div>
+    </div>
+  </body>
+</html>
+<script src="./polyfill/index.js"></script>
+<script src="./main.js"></script>
