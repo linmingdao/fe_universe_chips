@@ -14,7 +14,7 @@ let nextUnitOfWork; // 下一个执行单元
 
 function workLoop() {
   while (nextUnitOfWork) {
-    // 如果有待执行的执行单元，就执行，会返回下一个执行单元
+    // 如果有待执行的执行单元，就执行，performUnitOfWork会返回下一个执行单元
     nextUnitOfWork = performUnitOfWork(nextUnitOfWork);
   }
 
@@ -23,11 +23,11 @@ function workLoop() {
   }
 }
 
-// 深度优先遍历
+// 深度优先遍历 -> 但是并非是递归形式的深度优先算法 -> 如何解决dom嵌套过深导致的耗时问题 -> 引入时间切片技术
 function performUnitOfWork(fiber) {
   beginWork(fiber);
   if (fiber.child) {
-    //如果有子，返回第一个子节点 A1之后B1
+    // 如果有子，返回第一个子节点（A1之后B1）
     return fiber.child;
   }
   while (fiber) {
@@ -38,6 +38,7 @@ function performUnitOfWork(fiber) {
       return fiber.sibling;
     }
     // 兄弟节点也遍历完毕，则返回父节点，让父节点再次查找兄弟节点，即该节点的叔叔节点。
+    // 此处没有return，在配合while循环，做到不重复遍历父节点
     fiber = fiber.return;
   }
 }
