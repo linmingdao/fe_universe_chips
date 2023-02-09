@@ -1,10 +1,11 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-// import React from './myReact/react';
-// import ReactDOM from './myReact/react-dom';
+// import React from 'react';
+// import ReactDOM from 'react-dom/client';
+import React from './myReact_01_P03_workLoop/react';
+import ReactDOM from './myReact_01_P03_workLoop/react-dom';
 
 const style = { border: '3px solid red', margin: '10px', padding: '10px' };
 
+// jsx
 let element = (
   <div id="A1" style={style}>
     A1
@@ -22,6 +23,7 @@ let element = (
     </div>
   </div>
 );
+// console.log(element);
 
 // babel将jsx编译成如下代码，createElement返回虚拟dom
 // React.createElement("div", {id: "A1"},
@@ -35,7 +37,5 @@ let element = (
 //        id: "B2"
 //    }));
 
-console.log(element);
-
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(element);
+// ReactDOM.createRoot(document.getElementById('root')).render(element);
+ReactDOM.render(element, document.getElementById('root'));
