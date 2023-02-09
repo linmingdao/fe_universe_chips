@@ -1,7 +1,7 @@
 // import React from 'react';
 // import ReactDOM from 'react-dom/client';
-import React from './myReact_01_P04_mount_beginWork/react';
-import ReactDOM from './myReact_01_P04_mount_beginWork/react-dom';
+import React from './02_P04_mount_beginWork/react';
+import ReactDOM from './02_P04_mount_beginWork/react-dom';
 
 const style = { border: '3px solid red', margin: '10px', padding: '10px' };
 
