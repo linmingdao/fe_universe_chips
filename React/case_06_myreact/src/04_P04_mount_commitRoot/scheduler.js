@@ -47,10 +47,34 @@ function workLoop(deadline) {
   }
 
   if (!nextUnitOfWork && workInProgressRoot) {
-    console.log('本次render阶段结束，持续监听更新中...');
+    console.log('本次render阶段结束，开始commitRoot更新dom');
+    console.log('fiber树：', workInProgressRoot);
+    commitRoot();
   }
 
   window.requestIdleCallback(workLoop, { timeout: 500 });
+}
+
+function commitRoot() {
+  let currentFiber = workInProgressRoot.firstEffect;
+  while (currentFiber) {
+    commitWork(currentFiber);
+    currentFiber = currentFiber.nextEffect;
+  }
+  workInProgressRoot = null;
+}
+
+function commitWork(currentFiber) {
+  if (!currentFiber) return;
+  let returnFiber = currentFiber.return;
+  let domReturn = returnFiber.stateNode;
+  if (currentFiber.effectTag === PLACEMENT) {
+    // 处理新增节点
+    let nextFiber = currentFiber;
+    domReturn.appendChild(nextFiber.stateNode);
+  }
+
+  currentFiber.effectTag = null;
 }
 
 /**
@@ -61,13 +85,13 @@ function workLoop(deadline) {
  * @param {*} currentFiber
  */
 function beginWork(currentFiber) {
-  console.log('start：', currentFiber);
+  // console.log('start：', currentFiber);
   if (currentFiber.tag === TAG_ROOT) {
     updateHostRoot(currentFiber);
   } else if (currentFiber.tag === TAG_TEXT) {
     updateHostText(currentFiber);
   } else if (currentFiber.tag === TAG_HOST) {
-    // stateNode是dom
+    // stateNode是原生dom
     updateHost(currentFiber);
   }
 }
@@ -120,28 +144,35 @@ function reconcileChildren(currentFiber, newChildren) {
   let prevSibiling; // 上一个新的子fiber
 
   // 遍历我们子虚拟DOM元素数组，为每一个虚拟DOM创建子Fiber
-  while (newChildIndex < newChildren.length) {
+  // 创建该虚拟dom对应的fiber节点：虚拟dom -> fiber
+  while (newChildren && newChildIndex < newChildren.length) {
     let newChild = newChildren[newChildIndex]; // 取出虚拟DOM节点
-
-    let tag;
-    if (newChild && newChild.type === ELEMENT_TEXT) {
-      tag = TAG_TEXT;
+    let newFiber;
+    if (typeof newChild === 'string') {
+      // 处理文本节点
+      newFiber = {
+        tag: TAG_TEXT,
+        type: ELEMENT_TEXT,
+        props: { text: newChild },
+        stateNode: null, // div还没有创建DOM元素
+        return: currentFiber, // 父Fiber returnFiber
+        effectTag: PLACEMENT, // 副作用标示，render会收集副作用 增加 删除 更新
+        nextEffect: null, // effect list也是一个单链表 顺序和完成顺序一样 节点可能会少
+      };
     } else if (newChild && typeof newChild.type === 'string') {
-      tag = TAG_HOST; //如果type是字符串，那么这是一个原生DOM节点（div）
+      // 处理原生dom节点
+      newFiber = {
+        tag: TAG_HOST, // 如果type是字符串，那么这是一个原生DOM节点（div）,
+        type: newChild.type,
+        props: newChild.props,
+        stateNode: null, // div还没有创建DOM元素
+        return: currentFiber, // 父Fiber returnFiber
+        effectTag: PLACEMENT, // 副作用标示，render会收集副作用 增加 删除 更新
+        nextEffect: null, // effect list也是一个单链表 顺序和完成顺序一样 节点可能会少
+      };
     }
     // beginWork通过虚拟dom创建对应的fiber，虚拟dom树 -> fiber树
     // completeUnitOfWork的时候手机effect
-
-    // 创建该虚拟dom对应的fiber节点：虚拟dom -> fiber
-    let newFiber = {
-      tag,
-      type: newChild.type,
-      props: newChild.props,
-      stateNode: null, // div还没有创建DOM元素
-      return: currentFiber, // 父Fiber returnFiber
-      effectTag: PLACEMENT, // 副作用标示，render会收集副作用 增加 删除 更新
-      nextEffect: null, // effect list也是一个单链表 顺序和完成顺序一样 节点可能会少
-    };
 
     // 赋值指针，构建fiber数据结构中的 child、sibling、return 指针，由【虚拟dom树】 形成 【fiber树】
     if (newFiber) {
@@ -167,7 +198,7 @@ function reconcileChildren(currentFiber, newChildren) {
  * @param {*} currentFiber
  */
 function completeUnitOfWork(currentFiber) {
-  console.log('end：', currentFiber);
+  // console.log('end：', currentFiber);
   let returnFiber = currentFiber.return;
   if (returnFiber) {
     if (!returnFiber.firstEffect) {

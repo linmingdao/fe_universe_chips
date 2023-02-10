@@ -1,7 +1,7 @@
 // import React from 'react';
 // import ReactDOM from 'react-dom/client';
-import React from './02_P04_mount_beginWork/react';
-import ReactDOM from './02_P04_mount_beginWork/react-dom';
+import React from './04_P04_mount_commitRoot/react';
+import ReactDOM from './04_P04_mount_commitRoot/react-dom';
 
 const style = { border: '3px solid red', margin: '10px', padding: '10px' };
 
@@ -14,7 +14,7 @@ let element = (
       <div id="C1" style={style}>
         C1
       </div>
-      <div id="C1" style={style}>
+      <div id="C2" style={style}>
         C2
       </div>
     </div>
@@ -23,7 +23,7 @@ let element = (
     </div>
   </div>
 );
-// console.log(element);
+console.log('babel编译jsx生成的虚拟dom树：', element);
 
 // babel将jsx编译成如下代码，createElement返回虚拟dom
 // React.createElement("div", {id: "A1"},
