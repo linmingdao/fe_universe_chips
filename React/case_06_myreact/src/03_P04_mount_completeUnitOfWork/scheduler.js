@@ -111,7 +111,7 @@ function updateDOM(stateNode, oldProps, newProps) {
 }
 
 /**
- * 调和
+ * 调和，将虚拟dom转成fiber节点，即：虚拟dom树 -> fiber树
  * @param {*} currentFiber
  * @param {*} newChildren
  */
@@ -160,12 +160,38 @@ function reconcileChildren(currentFiber, newChildren) {
 
 /**
  * 在完成时收集副作用 组成effect list
- * 每个fiber有两个属性 firstEffect指向第一个有副作用的子fiber
- * lastEffect指向最后一个有副作用的子fiber，中间用nextEffect做成单链表
+ * 每个fiber有两个属性：
+ * 1、firstEffect指向第一个有副作用的子fiber
+ * 2、lastEffect指向最后一个有副作用的子fiber
+ * 3、中间用nextEffect做成单链表
  * @param {*} currentFiber
  */
 function completeUnitOfWork(currentFiber) {
   console.log('end：', currentFiber);
+  let returnFiber = currentFiber.return;
+  if (returnFiber) {
+    if (!returnFiber.firstEffect) {
+      returnFiber.firstEffect = currentFiber.firstEffect;
+    }
+
+    if (currentFiber.lastEffect) {
+      if (returnFiber.lastEffect) {
+        returnFiber.lastEffect.nextEffect = currentFiber.firstEffect;
+      }
+      returnFiber.lastEffect = currentFiber.lastEffect;
+    }
+
+    const effectTag = currentFiber.effectTag;
+    if (effectTag) {
+      // 如果有副作用，（第一次时肯定有，新增默认PLACEMENT）
+      if (returnFiber.lastEffect) {
+        returnFiber.lastEffect.nextEffect = currentFiber;
+      } else {
+        returnFiber.firstEffect = currentFiber;
+      }
+      returnFiber.lastEffect = currentFiber;
+    }
+  }
 }
 
 // react询问浏览器是否空闲，这里有个优先级的概念 expirationTime
