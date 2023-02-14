@@ -168,7 +168,8 @@ function updateDOM(stateNode, oldProps, newProps) {
 }
 
 /**
- * 调和，将虚拟dom转成fiber节点，即：虚拟dom树 -> fiber树，并且会执行dom diff操作
+ * 调和，将虚拟dom转成fiber节点，即：虚拟dom树 -> fiber树，
+ * 并且会执行dom diff操作
  * @param {*} currentFiber
  * @param {*} newChildren
  */
@@ -176,37 +177,67 @@ function reconcileChildren(currentFiber, newChildren) {
   let newChildIndex = 0; // 新子节点的索引
   let prevSibiling; // 上一个新的子fiber
 
-  // 如果currentFiber有alternate，并且有currentFiber.alternate.child，说明是更新，需要做dom diff
+  // TODO:如果currentFiber有alternate，并且有currentFiber.alternate.child，说明是更新，需要做dom diff
   let oldFiber = currentFiber.alternate && currentFiber.alternate.child;
 
   // 遍历我们子虚拟DOM元素数组，为每一个虚拟DOM创建子Fiber
   // 创建该虚拟dom对应的fiber节点：虚拟dom -> fiber
-  while (newChildren && newChildIndex < newChildren.length) {
+  while ((newChildren && newChildIndex < newChildren.length) || oldFiber) {
     let newChild = newChildren[newChildIndex]; // 取出虚拟DOM节点
     let newFiber;
-    if (typeof newChild === 'string') {
-      // 处理文本节点
-      newFiber = {
-        tag: TAG_TEXT,
-        type: ELEMENT_TEXT,
-        props: { text: newChild },
-        stateNode: null, // div还没有创建DOM元素
-        return: currentFiber, // 父Fiber returnFiber
-        effectTag: PLACEMENT, // 副作用标示，render会收集副作用 增加 删除 更新
-        nextEffect: null, // effect list也是一个单链表 顺序和完成顺序一样 节点可能会少
-      };
+    let sameType = oldFiber && newChild && oldFiber.type === newChild.type; // 节点类型一样可以复用，不一样则要删除再新增
+
+    let tag;
+    let type;
+    let props;
+    if (newChild && typeof newChild === 'string') {
+      // 是文本节点
+      tag = TAG_TEXT;
+      type = ELEMENT_TEXT;
+      props = { text: newChild };
     } else if (newChild && typeof newChild.type === 'string') {
-      // 处理原生dom节点
+      tag = TAG_HOST; // 如果type是字符串，那么这是一个原生DOM节点div
+      type = newChild.type;
+      props = newChild.props;
+    }
+
+    if (sameType) {
+      // 节点类型一样可以复用
       newFiber = {
-        tag: TAG_HOST, // 如果type是字符串，那么这是一个原生DOM节点（div）,
-        type: newChild.type,
-        props: newChild.props,
-        stateNode: null, // div还没有创建DOM元素
+        tag: oldFiber.tag,
+        type: oldFiber.type,
+        props: newChild.props, // 一定要新的
+        stateNode: oldFiber.stateNode, // div还没有创建DOM元素
         return: currentFiber, // 父Fiber returnFiber
-        effectTag: PLACEMENT, // 副作用标示，render会收集副作用 增加 删除 更新
+        alternate: oldFiber, // 让新的fiber的alternate指向老的fiber
+        effectTag: UPDATE, // 副作用标示，render会收集副作用 增加 删除 更新
         nextEffect: null, // effect list也是一个单链表 顺序和完成顺序一样 节点可能会少
       };
+    } else {
+      // 新、老fiber节点类型不一样，无法复用老的fiber，需要创建新的fiber，则要删除再新增
+      if (newChild) {
+        // 看看新的虚拟dom是不是不为null
+        newFiber = {
+          tag,
+          type,
+          props,
+          stateNode: null, //div还没有创建DOM元素
+          return: currentFiber, //父Fiber returnFiber
+          effectTag: PLACEMENT, //副作用标示，render会收集副作用 增加 删除 更新
+          nextEffect: null, //effect list也是一个单链表 顺序和完成顺序一样 节点可能会少
+        };
+      }
+      // 并且删除老节点
+      if (oldFiber) {
+        oldFiber.effectTag = DELETION;
+        deletions.push(oldFiber);
+      }
     }
+
+    if (oldFiber) {
+      oldFiber = oldFiber.sibling; // oldFiber指针也向后移动
+    }
+
     // beginWork通过虚拟dom创建对应的fiber，虚拟dom树 -> fiber树
     // completeUnitOfWork的时候手机effect
 

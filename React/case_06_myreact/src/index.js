@@ -1,7 +1,7 @@
 // import React from 'react';
 // import ReactDOM from 'react-dom/client';
-import React from './04_P04_mount_commitRoot/react';
-import ReactDOM from './04_P04_mount_commitRoot/react-dom';
+import React from './06_P04_update_reconcile_domdiff/react';
+import ReactDOM from './06_P04_update_reconcile_domdiff/react-dom';
 
 const style = { border: '3px solid red', margin: '10px', padding: '10px' };
 
@@ -39,3 +39,52 @@ console.log('babel编译jsx生成的虚拟dom树：', element);
 
 // ReactDOM.createRoot(document.getElementById('root')).render(element);
 ReactDOM.render(element, document.getElementById('root'));
+
+let render2 = document.getElementById('render2');
+render2.addEventListener('click', function () {
+  let element2 = (
+    <div id="A1-new" style={style}>
+      A1-new
+      <div id="B1-new" style={style}>
+        B1-new
+        <div id="C1-new" style={style}>
+          C1-new
+        </div>
+        <div id="C2-new" style={style}>
+          C2-new
+        </div>
+      </div>
+      <div id="B2-new" style={style}>
+        B2-new
+      </div>
+      <div id="B3-new" style={style}>
+        B3-new
+      </div>
+    </div>
+  );
+
+  ReactDOM.render(element2, document.getElementById('root'));
+});
+
+let render3 = document.getElementById('render3');
+render3.addEventListener('click', function () {
+  let element3 = (
+    <div id="A1-new2" style={style}>
+      A1-new2
+      <div id="B1-new2" style={style}>
+        B1-new2
+        <div id="C1-new2" style={style}>
+          C1-new2
+        </div>
+        <div id="C2-new2" style={style}>
+          C2-new2
+        </div>
+      </div>
+      <div id="B2-new2" style={style}>
+        B2-new2
+      </div>
+    </div>
+  );
+
+  ReactDOM.render(element3, document.getElementById('root'));
+});
