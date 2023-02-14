@@ -177,7 +177,7 @@ function reconcileChildren(currentFiber, newChildren) {
   let newChildIndex = 0; // 新子节点的索引
   let prevSibiling; // 上一个新的子fiber
 
-  // TODO:如果currentFiber有alternate，并且有currentFiber.alternate.child，说明是更新，需要做dom diff
+  // 如果currentFiber有alternate，并且有currentFiber.alternate.child，说明是更新，需要做dom diff
   let oldFiber = currentFiber.alternate && currentFiber.alternate.child;
 
   // 遍历我们子虚拟DOM元素数组，为每一个虚拟DOM创建子Fiber

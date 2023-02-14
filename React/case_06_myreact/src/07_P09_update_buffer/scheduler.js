@@ -59,8 +59,12 @@ function workLoop(deadline) {
   }
 
   if (!nextUnitOfWork && workInProgressRoot) {
-    console.log('本次render阶段结束，开始commitRoot更新dom');
-    console.log('fiber树：', workInProgressRoot);
+    console.log(
+      '本次render阶段结束，开始commitRoot更新dom，fiber树：',
+      workInProgressRoot,
+    );
+
+    // 更新视图，该过程不可中断（根据 completeUnitOfWork 过程中收集的副作用链（单链表）进行更新，从而避免了递归）
     commitRoot();
   }
 
@@ -94,7 +98,6 @@ function commitWork(currentFiber) {
     // 处理节点的更新
     if (currentFiber.type === ELEMENT_TEXT) {
       // 更新的是文本节点
-      // if (currentFiber.stateNode.textContent !== currentFiber.props.text)
       // 与上一次的fiber节点（老的fiber节点）进行比较
       if (currentFiber.alternate.props.text !== currentFiber.props.text)
         currentFiber.stateNode.textContent = currentFiber.props.text;
@@ -177,7 +180,7 @@ function reconcileChildren(currentFiber, newChildren) {
   let newChildIndex = 0; // 新子节点的索引
   let prevSibiling; // 上一个新的子fiber
 
-  // TODO:如果currentFiber有alternate，并且有currentFiber.alternate.child，说明是更新，需要做dom diff
+  // 如果currentFiber有alternate，并且有currentFiber.alternate.child，说明是更新，需要做dom diff
   let oldFiber = currentFiber.alternate && currentFiber.alternate.child;
 
   // 遍历我们子虚拟DOM元素数组，为每一个虚拟DOM创建子Fiber
