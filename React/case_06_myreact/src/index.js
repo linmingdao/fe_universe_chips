@@ -1,7 +1,7 @@
 // import React from 'react';
 // import ReactDOM from 'react-dom/client';
-import React from './06_P04_update_reconcile_domdiff/react';
-import ReactDOM from './06_P04_update_reconcile_domdiff/react-dom';
+import React from './06_P08_update_reconcile_domdiff/react';
+import ReactDOM from './06_P08_update_reconcile_domdiff/react-dom';
 
 const style = { border: '3px solid red', margin: '10px', padding: '10px' };
 
