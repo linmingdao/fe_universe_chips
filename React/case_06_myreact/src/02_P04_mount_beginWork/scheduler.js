@@ -26,7 +26,7 @@ export function scheduleRoot(rootFiber) {
 }
 
 function performUnitOfWork(currentFiber) {
-  beginWork(currentFiber);
+  beginWork(currentFiber); // 这一步一定会将虚拟dom -> fiber节点
   if (currentFiber.child) {
     return currentFiber.child;
   }
@@ -47,7 +47,7 @@ function workLoop(deadline) {
   }
 
   if (!nextUnitOfWork && workInProgressRoot) {
-    console.log('本次render阶段结束，持续监听更新中...');
+    console.log('本次render阶段结束，持续监听更新中...', workInProgressRoot);
   }
 
   window.requestIdleCallback(workLoop, { timeout: 500 });

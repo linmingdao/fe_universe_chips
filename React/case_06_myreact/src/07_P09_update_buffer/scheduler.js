@@ -11,7 +11,7 @@ import { setProps } from './utils';
 
 let nextUnitOfWork = null; // 下一个工作单元
 let workInProgressRoot = null; // RootFiber应用的根
-let currentRoot = null; // 记录渲染成功之后的当前根RootFiber
+let currentRoot = null; // 记录渲染成功之后的当前根RootFiber -> 即：缓存上一次的fiber树 -> 用于下次更新做比对
 let deletions = []; // 删除的节点我们并不放在effect list里，所以需要单独记录并执行
 
 /**
@@ -37,8 +37,9 @@ export function scheduleRoot(rootFiber) {
   nextUnitOfWork = rootFiber;
 }
 
+// 执行工作单元 -> 该过程会遍历所有虚拟DOM节点 -> 可以中断 -> 通过fiber数据结构存储中断和恢复中断
 function performUnitOfWork(currentFiber) {
-  beginWork(currentFiber);
+  beginWork(currentFiber); // 执行Reconciler的逻辑：虚拟dom -> fiber，虚拟dom树 -> fiber树，domdiff
   if (currentFiber.child) {
     return currentFiber.child;
   }
@@ -183,7 +184,7 @@ function reconcileChildren(currentFiber, newChildren) {
   // 如果currentFiber有alternate，并且有currentFiber.alternate.child，说明是更新，需要做dom diff
   let oldFiber = currentFiber.alternate && currentFiber.alternate.child;
 
-  // 遍历我们子虚拟DOM元素数组，为每一个虚拟DOM创建子Fiber
+  // 遍历子虚拟DOM元素数组，为每一个虚拟DOM创建子Fiber
   // 创建该虚拟dom对应的fiber节点：虚拟dom -> fiber
   while ((newChildren && newChildIndex < newChildren.length) || oldFiber) {
     let newChild = newChildren[newChildIndex]; // 取出虚拟DOM节点
