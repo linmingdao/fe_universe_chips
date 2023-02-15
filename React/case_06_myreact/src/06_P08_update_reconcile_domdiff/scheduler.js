@@ -118,7 +118,6 @@ function commitWork(currentFiber) {
  * @param {*} currentFiber
  */
 function beginWork(currentFiber) {
-  // console.log('start：', currentFiber);
   if (currentFiber.tag === TAG_ROOT) {
     updateHostRoot(currentFiber);
   } else if (currentFiber.tag === TAG_TEXT) {
@@ -265,7 +264,6 @@ function reconcileChildren(currentFiber, newChildren) {
  * @param {*} currentFiber
  */
 function completeUnitOfWork(currentFiber) {
-  // console.log('end：', currentFiber);
   let returnFiber = currentFiber.return;
   if (returnFiber) {
     if (!returnFiber.firstEffect) {

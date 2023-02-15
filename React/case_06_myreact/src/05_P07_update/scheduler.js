@@ -68,12 +68,16 @@ function workLoop(deadline) {
 }
 
 function commitRoot() {
-  deletions.forEach(commitWork); // 执行effect list之前先把该删除的元素删除
+  // 执行effect list（即更新dom）之前先把该删除的元素删除
+  deletions.forEach(commitWork);
+
+  // 开始根据收集到的副作用链进行dom更新操作
   let currentFiber = workInProgressRoot.firstEffect;
   while (currentFiber) {
     commitWork(currentFiber);
     currentFiber = currentFiber.nextEffect;
   }
+
   deletions.length = 0; // 记得清空数组
   currentRoot = workInProgressRoot; // 把当前渲染成功的根fiber赋值给currentRoot，用于下次更新前做比对
   workInProgressRoot = null;
@@ -118,7 +122,6 @@ function commitWork(currentFiber) {
  * @param {*} currentFiber
  */
 function beginWork(currentFiber) {
-  // console.log('start：', currentFiber);
   if (currentFiber.tag === TAG_ROOT) {
     updateHostRoot(currentFiber);
   } else if (currentFiber.tag === TAG_TEXT) {
@@ -231,7 +234,6 @@ function reconcileChildren(currentFiber, newChildren) {
  * @param {*} currentFiber
  */
 function completeUnitOfWork(currentFiber) {
-  // console.log('end：', currentFiber);
   let returnFiber = currentFiber.return;
   if (returnFiber) {
     if (!returnFiber.firstEffect) {
