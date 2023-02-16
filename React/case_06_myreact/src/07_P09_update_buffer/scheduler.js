@@ -37,9 +37,8 @@ export function scheduleRoot(rootFiber) {
   nextUnitOfWork = rootFiber;
 }
 
-// 执行工作单元 -> 该过程会遍历所有虚拟DOM节点 -> 可以中断 -> 通过fiber数据结构存储中断和恢复中断
 function performUnitOfWork(currentFiber) {
-  beginWork(currentFiber); // 执行Reconciler的逻辑：虚拟dom -> fiber，虚拟dom树 -> fiber树，domdiff
+  beginWork(currentFiber);
   if (currentFiber.child) {
     return currentFiber.child;
   }
@@ -64,8 +63,6 @@ function workLoop(deadline) {
       '本次render阶段结束，开始commitRoot更新dom，fiber树：',
       workInProgressRoot,
     );
-
-    // 更新视图，该过程不可中断（根据 completeUnitOfWork 过程中收集的副作用链（单链表）进行更新，从而避免了递归）
     commitRoot();
   }
 
@@ -173,7 +170,7 @@ function updateDOM(stateNode, oldProps, newProps) {
 
 /**
  * 调和，将虚拟dom转成fiber节点，即：虚拟dom树 -> fiber树，
- * 并且会执行dom diff操作
+ * 并且会执行dom diff操作、会收集待删除的fiber节点（即：待删除的dom）
  * @param {*} currentFiber
  * @param {*} newChildren
  */
@@ -184,29 +181,16 @@ function reconcileChildren(currentFiber, newChildren) {
   // 如果currentFiber有alternate，并且有currentFiber.alternate.child，说明是更新，需要做dom diff
   let oldFiber = currentFiber.alternate && currentFiber.alternate.child;
 
-  // 遍历子虚拟DOM元素数组，为每一个虚拟DOM创建子Fiber
+  // 遍历我们子虚拟DOM元素数组，为每一个虚拟DOM创建子Fiber
   // 创建该虚拟dom对应的fiber节点：虚拟dom -> fiber
   while ((newChildren && newChildIndex < newChildren.length) || oldFiber) {
-    let newChild = newChildren[newChildIndex]; // 取出虚拟DOM节点
     let newFiber;
+    let newChild = newChildren[newChildIndex]; // 取出虚拟DOM节点
     let sameType = oldFiber && newChild && oldFiber.type === newChild.type; // 节点类型一样可以复用，不一样则要删除再新增
 
-    let tag;
-    let type;
-    let props;
-    if (newChild && typeof newChild === 'string') {
-      // 是文本节点
-      tag = TAG_TEXT;
-      type = ELEMENT_TEXT;
-      props = { text: newChild };
-    } else if (newChild && typeof newChild.type === 'string') {
-      tag = TAG_HOST; // 如果type是字符串，那么这是一个原生DOM节点div
-      type = newChild.type;
-      props = newChild.props;
-    }
-
     if (sameType) {
-      // 节点类型一样可以复用
+      // 节点类型一样可以复用（dom节点上有非常多的属性，在已经创建出来的时候，如果可以复用要尽量复用，减少重新开辟内存以及垃圾回收的开销）
+      // 同样的，一颗fiber树已经有居多的节点了，如果能复用前一棵fiber树，形成双缓冲，这样可以尽可能地减少不断地内存开辟和垃圾回收
       newFiber = {
         tag: oldFiber.tag,
         type: oldFiber.type,
@@ -220,6 +204,20 @@ function reconcileChildren(currentFiber, newChildren) {
     } else {
       // 新、老fiber节点类型不一样，无法复用老的fiber，需要创建新的fiber，则要删除再新增
       if (newChild) {
+        let tag;
+        let type;
+        let props;
+        if (newChild && typeof newChild === 'string') {
+          // 是文本节点
+          tag = TAG_TEXT;
+          type = ELEMENT_TEXT;
+          props = { text: newChild };
+        } else if (newChild && typeof newChild.type === 'string') {
+          tag = TAG_HOST; // 如果type是字符串，那么这是一个原生DOM节点div
+          type = newChild.type;
+          props = newChild.props;
+        }
+
         // 看看新的虚拟dom是不是不为null
         newFiber = {
           tag,
@@ -269,7 +267,6 @@ function reconcileChildren(currentFiber, newChildren) {
  * @param {*} currentFiber
  */
 function completeUnitOfWork(currentFiber) {
-  // console.log('end：', currentFiber);
   let returnFiber = currentFiber.return;
   if (returnFiber) {
     if (!returnFiber.firstEffect) {
