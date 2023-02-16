@@ -26,6 +26,7 @@ let deletions = []; // 删除的节点我们并不放在effect list里，所以�
  */
 export function scheduleRoot(rootFiber) {
   if (currentRoot && currentRoot.alternate) {
+    // 渲染两次后才会形成两棵Fiber树，第三次开始，就可以启用双缓冲渲染
     // 第三次（包括第三次）之后的渲染（update过程），不能每次都创建树，如起始时可以把第一个树赋给第三个
     workInProgressRoot = currentRoot.alternate; // 这就是第二次之后渲染，不能每次都创建树，如起始时可以把第一个树赋给第三个
     workInProgressRoot.props = rootFiber.props; // 让他的props更新成新的props
@@ -39,11 +40,14 @@ export function scheduleRoot(rootFiber) {
     workInProgressRoot = rootFiber;
   }
 
+  // 清理上次的副作用链
   workInProgressRoot.firstEffect =
     workInProgressRoot.lastEffect =
     workInProgressRoot.nextEffect =
       null;
-  nextUnitOfWork = rootFiber;
+
+  // 触发执行工作循环
+  nextUnitOfWork = workInProgressRoot;
 }
 
 function performUnitOfWork(currentFiber) {
@@ -61,6 +65,8 @@ function performUnitOfWork(currentFiber) {
 }
 
 function workLoop(deadline) {
+  console.log('持续监听中...');
+
   let shouldYield = false;
   while (nextUnitOfWork && !shouldYield) {
     nextUnitOfWork = performUnitOfWork(nextUnitOfWork);
@@ -89,10 +95,6 @@ function commitRoot() {
 
   deletions.length = 0; // 记得清空数组
   currentRoot = workInProgressRoot; // 把当前渲染成功的根fiber赋值给currentRoot，用于下次更新前做比对
-  // currentRoot.firstEffect =
-  //   currentRoot.lastEffect =
-  //   currentRoot.nextEffect =
-  //     null;
   workInProgressRoot = null;
 }
 
@@ -221,12 +223,12 @@ function reconcileChildren(currentFiber, newChildren) {
         let tag;
         let type;
         let props;
-        if (newChild && typeof newChild === 'string') {
+        if (typeof newChild === 'string') {
           // 是文本节点
           tag = TAG_TEXT;
           type = ELEMENT_TEXT;
           props = convertTextNode(newChild);
-        } else if (newChild && typeof newChild.type === 'string') {
+        } else if (typeof newChild.type === 'string') {
           tag = TAG_HOST; // 如果type是字符串，那么这是一个原生DOM节点div
           type = newChild.type;
           props = newChild.props;
@@ -237,10 +239,10 @@ function reconcileChildren(currentFiber, newChildren) {
           tag,
           type,
           props,
-          stateNode: null, //div还没有创建DOM元素
-          return: currentFiber, //父Fiber returnFiber
-          effectTag: PLACEMENT, //副作用标示，render会收集副作用 增加 删除 更新
-          nextEffect: null, //effect list也是一个单链表 顺序和完成顺序一样 节点可能会少
+          stateNode: null, // div还没有创建DOM元素
+          return: currentFiber, // 父Fiber returnFiber
+          effectTag: PLACEMENT, // 副作用标示，render会收集副作用 增加 删除 更新
+          nextEffect: null, // effect list也是一个单链表 顺序和完成顺序一样 节点可能会少
         };
       }
       // 并且删除老节点
