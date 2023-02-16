@@ -25,15 +25,24 @@ let deletions = []; // 删除的节点我们并不放在effect list里，所以�
  * @param { tag: TAG_ROOT, stateNode: container, props: { children: [element] } rootFiber
  */
 export function scheduleRoot(rootFiber) {
-  if (currentRoot) {
-    // 至少渲染过一次了（update过程）
-    rootFiber.alternate = currentRoot;
+  if (currentRoot && currentRoot.alternate) {
+    // 第三次（包括第三次）之后的渲染（update过程），不能每次都创建树，如起始时可以把第一个树赋给第三个
+    workInProgressRoot = currentRoot.alternate; // 这就是第二次之后渲染，不能每次都创建树，如起始时可以把第一个树赋给第三个
+    workInProgressRoot.props = rootFiber.props; // 让他的props更新成新的props
+    workInProgressRoot.alternate = currentRoot; // 他的替身指向当前树
+  } else if (currentRoot) {
+    // 第二次渲染（update过程）
     workInProgressRoot = rootFiber;
+    workInProgressRoot.alternate = currentRoot;
   } else {
     // 第一次渲染（mount过程）
     workInProgressRoot = rootFiber;
   }
 
+  workInProgressRoot.firstEffect =
+    workInProgressRoot.lastEffect =
+    workInProgressRoot.nextEffect =
+      null;
   nextUnitOfWork = rootFiber;
 }
 
@@ -71,13 +80,19 @@ function workLoop(deadline) {
 
 function commitRoot() {
   deletions.forEach(commitWork); // 执行effect list之前先把该删除的元素删除
+
   let currentFiber = workInProgressRoot.firstEffect;
   while (currentFiber) {
     commitWork(currentFiber);
     currentFiber = currentFiber.nextEffect;
   }
+
   deletions.length = 0; // 记得清空数组
   currentRoot = workInProgressRoot; // 把当前渲染成功的根fiber赋值给currentRoot，用于下次更新前做比对
+  // currentRoot.firstEffect =
+  //   currentRoot.lastEffect =
+  //   currentRoot.nextEffect =
+  //     null;
   workInProgressRoot = null;
 }
 
@@ -119,7 +134,6 @@ function commitWork(currentFiber) {
  * @param {*} currentFiber
  */
 function beginWork(currentFiber) {
-  // console.log('start：', currentFiber);
   if (currentFiber.tag === TAG_ROOT) {
     updateHostRoot(currentFiber);
   } else if (currentFiber.tag === TAG_TEXT) {

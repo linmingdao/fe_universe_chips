@@ -42,6 +42,7 @@ ReactDOM.render(element, document.getElementById('root'));
 
 let render2 = document.getElementById('render2');
 render2.addEventListener('click', function () {
+  const style = { border: '2px solid green', margin: '10px', padding: '10px' };
   let element2 = (
     <div id="A1-new" style={style}>
       A1-new
@@ -68,6 +69,7 @@ render2.addEventListener('click', function () {
 
 let render3 = document.getElementById('render3');
 render3.addEventListener('click', function () {
+  const style = { border: '1px solid blue', margin: '10px', padding: '10px' };
   let element3 = (
     <div id="A1-new2" style={style}>
       A1-new2
