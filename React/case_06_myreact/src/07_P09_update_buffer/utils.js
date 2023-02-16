@@ -1,3 +1,5 @@
+import { ELEMENT_TEXT } from './constants';
+
 export function setProps(dom, oldProps, newProps) {
   for (let key in oldProps) {
     if (key !== 'children') {
@@ -36,4 +38,24 @@ function setProp(dom, key, value) {
     dom.setAttribute(key, value);
   }
   return dom;
+}
+
+export function isSameType(newChild, oldFiber) {
+  if (oldFiber) {
+    if (newChild) {
+      if (typeof newChild === 'string') {
+        return oldFiber.type === ELEMENT_TEXT;
+      } else {
+        return oldFiber.type === newChild.type;
+      }
+    } else {
+      return false;
+    }
+  } else {
+    return false;
+  }
+}
+
+export function convertTextNode(newChild) {
+  return typeof newChild === 'string' ? { text: newChild } : newChild.props;
 }

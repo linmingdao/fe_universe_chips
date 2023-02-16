@@ -7,7 +7,7 @@ import {
   DELETION,
   UPDATE,
 } from './constants';
-import { setProps } from './utils';
+import { setProps, isSameType, convertTextNode } from './utils';
 
 let nextUnitOfWork = null; // 下一个工作单元
 let workInProgressRoot = null; // RootFiber应用的根
@@ -200,7 +200,7 @@ function reconcileChildren(currentFiber, newChildren) {
   while ((newChildren && newChildIndex < newChildren.length) || oldFiber) {
     let newFiber;
     let newChild = newChildren[newChildIndex]; // 取出虚拟DOM节点
-    let sameType = oldFiber && newChild && oldFiber.type === newChild.type; // 节点类型一样可以复用，不一样则要删除再新增
+    let sameType = isSameType(newChild, oldFiber); // 节点类型一样可以复用，不一样则要删除再新增
 
     if (sameType) {
       // 节点类型一样可以复用（dom节点上有非常多的属性，在已经创建出来的时候，如果可以复用要尽量复用，减少重新开辟内存以及垃圾回收的开销）
@@ -208,7 +208,7 @@ function reconcileChildren(currentFiber, newChildren) {
       newFiber = {
         tag: oldFiber.tag,
         type: oldFiber.type,
-        props: newChild.props, // 一定要新的
+        props: convertTextNode(newChild), // 一定要新的
         stateNode: oldFiber.stateNode, // div还没有创建DOM元素
         return: currentFiber, // 父Fiber returnFiber
         alternate: oldFiber, // 让新的fiber的alternate指向老的fiber
@@ -225,7 +225,7 @@ function reconcileChildren(currentFiber, newChildren) {
           // 是文本节点
           tag = TAG_TEXT;
           type = ELEMENT_TEXT;
-          props = { text: newChild };
+          props = convertTextNode(newChild);
         } else if (newChild && typeof newChild.type === 'string') {
           tag = TAG_HOST; // 如果type是字符串，那么这是一个原生DOM节点div
           type = newChild.type;
