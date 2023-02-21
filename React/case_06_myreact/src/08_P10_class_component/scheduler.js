@@ -10,8 +10,8 @@ import {
 import { setProps, isSameType, convertTextNode } from './utils';
 
 let nextUnitOfWork = null; // 下一个工作单元
-let workInProgressRoot = null; // RootFiber应用的根
-let currentRoot = null; // 记录渲染成功之后的当前根RootFiber -> 即：缓存上一次的fiber树 -> 用于下次更新做比对
+let workInProgressRoot = null; // RootFiber应用的根（内存中下次渲染的fiber树）
+let currentRoot = null; // 记录渲染成功之后的当前根RootFiber -> 即：缓存当前的fiber树 -> 用于下次更新做比对
 let deletions = []; // 删除的节点我们并不放在effect list里，所以需要单独记录并执行
 
 /**
@@ -207,16 +207,26 @@ function reconcileChildren(currentFiber, newChildren) {
     if (sameType) {
       // 节点类型一样可以复用（dom节点上有非常多的属性，在已经创建出来的时候，如果可以复用要尽量复用，减少重新开辟内存以及垃圾回收的开销）
       // 同样的，一颗fiber树已经有居多的节点了，如果能复用前一棵fiber树，形成双缓冲，这样可以尽可能地减少不断地内存开辟和垃圾回收
-      newFiber = {
-        tag: oldFiber.tag,
-        type: oldFiber.type,
-        props: convertTextNode(newChild), // 一定要新的
-        stateNode: oldFiber.stateNode, // div还没有创建DOM元素
-        return: currentFiber, // 父Fiber returnFiber
-        alternate: oldFiber, // 让新的fiber的alternate指向老的fiber
-        effectTag: UPDATE, // 副作用标示，render会收集副作用 增加 删除 更新
-        nextEffect: null, // effect list也是一个单链表 顺序和完成顺序一样 节点可能会少
-      };
+      // 说明老fiber和新虚拟DOM类型一样，可以复用，更新即可
+      if (oldFiber.alternate) {
+        // 至少已经更新一次了
+        newFiber = oldFiber.alternate;
+        newFiber.props = convertTextNode(newChild);
+        newFiber.alternate = oldFiber;
+        newFiber.effectTag = UPDATE;
+        newFiber.nextEffect = null;
+      } else {
+        newFiber = {
+          tag: oldFiber.tag,
+          type: oldFiber.type,
+          props: convertTextNode(newChild), // 一定要新的
+          stateNode: oldFiber.stateNode, // div还没有创建DOM元素
+          return: currentFiber, // 父Fiber returnFiber
+          alternate: oldFiber, // 让新的fiber的alternate指向老的fiber
+          effectTag: UPDATE, // 副作用标示，render会收集副作用 增加 删除 更新
+          nextEffect: null, // effect list也是一个单链表 顺序和完成顺序一样 节点可能会少
+        };
+      }
     } else {
       // 新、老fiber节点类型不一样，无法复用老的fiber，需要创建新的fiber，则要删除再新增
       if (newChild) {
