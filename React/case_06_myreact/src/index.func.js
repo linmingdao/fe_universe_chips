@@ -1,7 +1,7 @@
 // import React from 'react';
 // import ReactDOM from 'react-dom/client';
-import React from './09_P12_function_component_hooks/react';
-import ReactDOM from './09_P12_function_component_hooks/react-dom';
+import React from './09_P11_function_component/react';
+import ReactDOM from './09_P11_function_component/react-dom';
 
 const style = { border: '3px solid red', margin: '10px', padding: '10px' };
 const buttonStyle = {

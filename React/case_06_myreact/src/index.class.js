@@ -1,7 +1,7 @@
 // import React from 'react';
 // import ReactDOM from 'react-dom/client';
-import React from './09_P12_function_component_hooks/react';
-import ReactDOM from './09_P12_function_component_hooks/react-dom';
+import React from './08_P10_class_component/react';
+import ReactDOM from './08_P10_class_component/react-dom';
 
 const style = { border: '3px solid red', margin: '10px', padding: '10px' };
 const buttonStyle = {
@@ -12,7 +12,7 @@ const buttonStyle = {
   cursor: 'pointer',
 };
 
-class ClassCounter extends React.Component {
+class Counter extends React.Component {
   constructor(props) {
     super(props);
     this.state = { number: -1 };
@@ -24,30 +24,20 @@ class ClassCounter extends React.Component {
 
   render() {
     return (
-      <div id="class_counter">
+      <div id="counter">
         <span>{this.state.number}</span>
         <button style={buttonStyle} onClick={this.onClick}>
-          +1（class counter）
+          +1
         </button>
       </div>
     );
   }
 }
 
-function FuncCounter() {
-  return (
-    <div id="func_counter">
-      <span>{0}</span>
-      <button style={buttonStyle}>+1（func counter）</button>
-    </div>
-  );
-}
-
 let element = (
   <div id="A1" style={style}>
     A1
-    <ClassCounter />
-    <FuncCounter />
+    <Counter />
     <div id="B1" style={style}>
       B1
       <div id="C1" style={style}>
