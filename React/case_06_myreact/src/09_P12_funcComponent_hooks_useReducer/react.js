@@ -1,6 +1,6 @@
 import { ELEMENT_TEXT } from './constants';
-import { scheduleRoot } from './scheduler';
 import { Update } from './updateQueue';
+import { scheduleRoot, useReducer } from './scheduler';
 
 /**
  * 创建元素（虚拟DOM）的方法
@@ -47,6 +47,6 @@ class Component {
 
 Component.prototype.isReactComponent = {};
 
-const React = { createElement, Component };
+const React = { createElement, Component, useReducer };
 
 export default React;

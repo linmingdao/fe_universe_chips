@@ -9,7 +9,7 @@ import {
   TAG_CLASS,
   TAG_FUNCTION_COMPONENT,
 } from './constants';
-import { UpdateQueue } from './updateQueue';
+import { UpdateQueue, Update } from './updateQueue';
 import {
   setProps,
   isSameType,
@@ -21,6 +21,9 @@ let nextUnitOfWork = null; // 下一个工作单元
 let workInProgressRoot = null; // RootFiber应用的根（内存中下次渲染的fiber树）
 let currentRoot = null; // 记录渲染成功之后的当前根RootFiber -> 即：缓存当前的fiber树 -> 用于下次更新做比对
 let deletions = []; // 删除的节点我们并不放在effect list里，所以需要单独记录并执行
+
+let workInProgressFiber = null; // 正在工作中的fiber
+let hookIndex = 0; // hooks索引
 
 export function scheduleRoot(rootFiber) {
   if (currentRoot && currentRoot.alternate) {
@@ -70,8 +73,6 @@ function performUnitOfWork(currentFiber) {
 }
 
 function workLoop(deadline) {
-  console.log('持续监听中...');
-
   let shouldYield = false;
   while (nextUnitOfWork && !shouldYield) {
     nextUnitOfWork = performUnitOfWork(nextUnitOfWork);
@@ -79,13 +80,12 @@ function workLoop(deadline) {
   }
 
   if (!nextUnitOfWork && workInProgressRoot) {
-    console.log(
-      '本次render阶段结束，开始commitRoot更新dom，fiber树：',
-      workInProgressRoot,
-    );
+    console.log('开始commitRoot更新dom，fiber树：', workInProgressRoot);
+    console.log('本次render阶段结束');
     commitRoot();
   }
 
+  console.log('持续监听中...');
   window.requestIdleCallback(workLoop, { timeout: 500 });
 }
 
@@ -178,6 +178,12 @@ function beginWork(currentFiber) {
 }
 
 function updateFunctionComponent(currentFiber) {
+  // 初始化跟hooks相关的东西
+  workInProgressFiber = currentFiber;
+  hookIndex = 0;
+  workInProgressFiber.hooks = [];
+
+  // 执行函数组件，获取函数组件的返回值
   const newChildren = [currentFiber.type(currentFiber.props)];
   reconcileChildren(currentFiber, newChildren);
 }
@@ -339,6 +345,34 @@ function completeUnitOfWork(currentFiber) {
       returnFiber.lastEffect = currentFiber;
     }
   }
+}
+
+export function useReducer(reducer, initialValue) {
+  let newHook =
+    workInProgressFiber.alternate &&
+    workInProgressFiber.alternate.hooks &&
+    workInProgressFiber.alternate.hooks[hookIndex];
+
+  if (newHook) {
+    // 第二次渲染
+    newHook.state = newHook.updateQueue.forceUpdate(newHook.state);
+  } else {
+    newHook = {
+      state: initialValue,
+      updateQueue: new UpdateQueue(), // 空的更新队列
+    };
+  }
+
+  // action: { type: 'ADD' }
+  const dispatch = (action) => {
+    let payload = reducer ? reducer(newHook.state, action) : action;
+    newHook.updateQueue.enqueueUpdate(new Update(payload));
+    // 触发更新
+    scheduleRoot();
+  };
+  workInProgressFiber.hooks[hookIndex++] = newHook;
+
+  return [newHook.state, dispatch];
 }
 
 window.requestIdleCallback(workLoop, { timeout: 500 });

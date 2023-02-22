@@ -1,5 +1,3 @@
-// import React from 'react';
-// import ReactDOM from 'react-dom/client';
 import React from './09_P12_funcComponent_hooks_useReducer/react';
 import ReactDOM from './09_P12_funcComponent_hooks_useReducer/react-dom';
 
