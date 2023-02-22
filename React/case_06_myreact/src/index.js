@@ -1,7 +1,7 @@
 // import React from 'react';
 // import ReactDOM from 'react-dom/client';
-import React from './09_P12_funcComponent_hooks_useReducer/react';
-import ReactDOM from './09_P12_funcComponent_hooks_useReducer/react-dom';
+import React from './10_P13_funcComponent_hooks_useState/react';
+import ReactDOM from './10_P13_funcComponent_hooks_useState/react-dom';
 
 const style = { border: '3px solid red', margin: '10px', padding: '10px' };
 const buttonStyle = {
@@ -45,28 +45,24 @@ function reducer(state, action) {
 }
 
 function FuncCounter(props) {
-  const [countState1, dispatch1] = React.useReducer(reducer, { count: 0 });
-  const [countState2, dispatch2] = React.useReducer(reducer, { count: 1 });
-  const [countState3, dispatch3] = React.useReducer(reducer, { count: 2 });
+  const [countState, dispatch] = React.useReducer(reducer, { count: 0 });
+  const [numberState, setNumber] = React.useState({ number: 1 });
 
   return (
     <div id="func_counter" style={style}>
       函数组件：
       <div>
-        hook1：<span>{countState1.count}</span>
-        <button style={buttonStyle} onClick={() => dispatch1({ type: 'ADD' })}>
+        hook1：<span>{countState.count}</span>
+        <button style={buttonStyle} onClick={() => dispatch({ type: 'ADD' })}>
           +1（func counter）
         </button>
       </div>
       <div>
-        hook2：<span>{countState2.count}</span>
-        <button style={buttonStyle} onClick={() => dispatch2({ type: 'ADD' })}>
-          +1（func counter）
-        </button>
-      </div>
-      <div>
-        hook3：<span>{countState3.count}</span>
-        <button style={buttonStyle} onClick={() => dispatch3({ type: 'ADD' })}>
+        useState：<span>{numberState.number}</span>
+        <button
+          style={buttonStyle}
+          onClick={() => setNumber({ number: numberState.number + 1 })}
+        >
           +1（func counter）
         </button>
       </div>
