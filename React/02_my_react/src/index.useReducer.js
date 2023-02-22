@@ -1,5 +1,5 @@
-import React from './09_P12_funcComponent_hooks_useReducer/react';
-import ReactDOM from './09_P12_funcComponent_hooks_useReducer/react-dom';
+import React from './P10_funcComponent_hooks_useReducer/react';
+import ReactDOM from './P10_funcComponent_hooks_useReducer/react-dom';
 
 const style = { border: '3px solid red', margin: '10px', padding: '10px' };
 const buttonStyle = {

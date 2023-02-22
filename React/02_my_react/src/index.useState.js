@@ -1,5 +1,5 @@
-import React from './P09_function_component/react';
-import ReactDOM from './P09_function_component/react-dom';
+import React from './P11_funcComponent_hooks_useState/react';
+import ReactDOM from './P11_funcComponent_hooks_useState/react-dom';
 
 const style = { border: '3px solid red', margin: '10px', padding: '10px' };
 const buttonStyle = {
@@ -23,6 +23,7 @@ class ClassCounter extends React.Component {
   render() {
     return (
       <div id="class_counter">
+        类组件：
         <span>{this.state.number}</span>
         <button style={buttonStyle} onClick={this.onClick}>
           +1（class counter）
@@ -32,11 +33,37 @@ class ClassCounter extends React.Component {
   }
 }
 
-function FuncCounter() {
+function reducer(state, action) {
+  switch (action.type) {
+    case 'ADD':
+      return { count: state.count + 1 };
+    default:
+      return state;
+  }
+}
+
+function FuncCounter(props) {
+  const [countState, dispatch] = React.useReducer(reducer, { count: 0 });
+  const [numberState, setNumber] = React.useState({ number: 1 });
+
   return (
-    <div id="func_counter">
-      <span>{0}</span>
-      <button style={buttonStyle}>+1（func counter）</button>
+    <div id="func_counter" style={style}>
+      函数组件：
+      <div>
+        hook1：<span>{countState.count}</span>
+        <button style={buttonStyle} onClick={() => dispatch({ type: 'ADD' })}>
+          +1（func counter）
+        </button>
+      </div>
+      <div>
+        useState：<span>{numberState.number}</span>
+        <button
+          style={buttonStyle}
+          onClick={() => setNumber({ number: numberState.number + 1 })}
+        >
+          +1（func counter）
+        </button>
+      </div>
     </div>
   );
 }
@@ -62,7 +89,6 @@ let element = (
 );
 console.log('babel编译jsx生成的虚拟dom树：', element);
 
-// ReactDOM.createRoot(document.getElementById('root')).render(element);
 ReactDOM.render(element, document.getElementById('root'));
 
 let render2 = document.getElementById('render2');

@@ -1,7 +1,5 @@
-// import React from 'react';
-// import ReactDOM from 'react-dom/client';
-import React from './08_P10_class_component/react';
-import ReactDOM from './08_P10_class_component/react-dom';
+import React from './P08_class_component/react';
+import ReactDOM from './P08_class_component/react-dom';
 
 const style = { border: '3px solid red', margin: '10px', padding: '10px' };
 const buttonStyle = {
