@@ -26,6 +26,7 @@ const moduleAnalyser = (filename) => {
 
   return { filename, dependencies, code };
 };
+
 // const moduleInfo = moduleAnalyser('./src/index.js');
 // console.log(moduleInfo);
 
@@ -51,5 +52,27 @@ const makeDependenciesGraph = (entry) => {
   return graph;
 };
 
-const graphInfo = makeDependenciesGraph('./src/index.js');
-console.log(graphInfo);
+// const graphInfo = makeDependenciesGraph('./src/index.js');
+// console.log(graphInfo);
+
+// 代码生成器
+const generateCode = (entry) => {
+  const graph = JSON.stringify(makeDependenciesGraph(entry));
+  // 防止全局变量污染，将代码放到闭包里执行
+  return `(function(graph) {
+    function require(module) {
+      function localRequire(relativePath) {
+        return require(graph[module].dependencies[relativePath]);
+      }
+      var exports = {};
+      (function(require, exports, code) {
+        eval(code);
+      })(localRequire, exports, graph[module].code);
+      return exports;
+    }
+    require('${entry}');
+  })(${graph});`;
+};
+
+const code = generateCode('./src/index.js');
+console.log(code);
