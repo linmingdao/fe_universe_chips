@@ -26,13 +26,17 @@
           age: 12,
           address: '福州',
           n: { n: { n: 1 } },
-          arr: [1, 2, 3],
+          arr: [1, 2, 3, { a: 1 }],
         },
       });
 
+      // vm._data.arr.length = 0; // 数组的长度没有被监控，不会触发视图更新
+      // vm._data.arr[0] = 2; // 数组的下标没有被监控，不会触发更新
+
       vm._data.arr.push(123); // vue只会劫持arr上的push方法，不会改变原生数组上的方法
       vm._data.arr.pop();
-      vm._data.arr.push({ a: 1 }); // { a: 1 } 也需要变成响应式
+      vm._data.arr.push({ b: 2 }); // { b: 2 } 也需要变成响应式，数组里面的非对象类型（数组、对象）不会进行监测
+      console.log(vm);
 
       // const vm2 = new Vue({
       //   el: '#app',
