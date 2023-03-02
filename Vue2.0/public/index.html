@@ -37,6 +37,7 @@
       vm._data.arr.pop();
       vm._data.arr.push({ b: 2 }); // { b: 2 } 也需要变成响应式，数组里面的非对象类型（数组、对象）不会进行监测
       console.log(vm);
+      console.log(vm.name);
 
       // const vm2 = new Vue({
       //   el: '#app',
