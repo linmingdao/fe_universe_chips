@@ -2,6 +2,7 @@ import arrayPrototype from './array';
 
 // 这里才是响应式原理的核心
 export function observe(data) {
+  // typeof null --> 'object'，typeof undefined --> 'undefined'，所以此处需要再额外过滤掉 null 的情况
   if (typeof data !== 'object' || data === null) {
     return;
   }
