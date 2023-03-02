@@ -26,10 +26,13 @@
           age: 12,
           address: '福州',
           n: { n: { n: 1 } },
+          arr: [1, 2, 3],
         },
       });
 
-      console.log(vm);
+      vm._data.arr.push(123); // vue只会劫持arr上的push方法，不会改变原生数组上的方法
+      vm._data.arr.pop();
+      vm._data.arr.push({ a: 1 }); // { a: 1 } 也需要变成响应式
 
       // const vm2 = new Vue({
       //   el: '#app',

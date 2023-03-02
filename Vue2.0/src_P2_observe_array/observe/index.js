@@ -20,7 +20,6 @@ class Observer {
     if (Array.isArray(data)) {
       // 需要重写7个方法
       data.__proto__ = arrayPrototype;
-      // 如果数组里面放的是对象类型，那么我希望他也会变成响应式的
     } else {
       this.walk(data);
     }
