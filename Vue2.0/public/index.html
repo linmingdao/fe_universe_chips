@@ -8,7 +8,9 @@
   </head>
   <body>
     <!-- 提供数据映射的模板 -->
-    <div id="app" a="d" c=1 b='g'  disabled>{{name}}<span>hello world</span></div>
+    <div id="app" style="color: red; background: blue" disabled>
+      abc {{name}} {{age}} def<span>hello world</span>
+    </div>
     <script src="../dist/vue.js"></script>
     <script>
       // vue mvvm框架，基于MVC升级来的，但vue没有严格遵循mvvm，因为传统的mvvm框架不能手动操作数据（vue提供的ref可以操作组件数据）
