@@ -8,7 +8,7 @@
   </head>
   <body>
     <!-- 提供数据映射的模板 -->
-    <div id="app">{{name}}</div>
+    <div id="app" a="d" c=1 b='g'  disabled>{{name}}<span>hello world</span></div>
     <script src="../dist/vue.js"></script>
     <script>
       // vue mvvm框架，基于MVC升级来的，但vue没有严格遵循mvvm，因为传统的mvvm框架不能手动操作数据（vue提供的ref可以操作组件数据）
@@ -33,11 +33,11 @@
       // vm._data.arr.length = 0; // 数组的长度没有被监控，不会触发视图更新
       // vm._data.arr[0] = 2; // 数组的下标没有被监控，不会触发更新
 
-      vm._data.arr.push(123); // vue只会劫持arr上的push方法，不会改变原生数组上的方法
-      vm._data.arr.pop();
-      vm._data.arr.push({ b: 2 }); // { b: 2 } 也需要变成响应式，数组里面的非对象类型（数组、对象）不会进行监测
-      console.log(vm);
-      console.log(vm.name);
+      // vm._data.arr.push(123); // vue只会劫持arr上的push方法，不会改变原生数组上的方法
+      // vm._data.arr.pop();
+      // vm._data.arr.push({ b: 2 }); // { b: 2 } 也需要变成响应式，数组里面的非对象类型（数组、对象）不会进行监测
+      // console.log(vm);
+      // console.log(vm.name);
 
       // const vm2 = new Vue({
       //   el: '#app',
