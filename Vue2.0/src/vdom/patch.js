@@ -23,6 +23,8 @@ function createElm(vnode) {
   let { tag, data, children, text } = vnode;
   if (typeof tag === 'string') {
     vnode.el = document.createElement(tag); // 后续需要diff算法，拿虚拟节点比对后更新dom
+    // 更新属性
+    updateProps(vnode);
     children.forEach((child) => {
       vnode.el.appendChild(createElm(child));
     });
@@ -31,4 +33,20 @@ function createElm(vnode) {
   }
 
   return vnode.el;
+}
+
+function updateProps(vnode) {
+  const el = vnode.el;
+  const props = vnode.data;
+  for (let k in props) {
+    if (k === 'style') {
+      for (let sk in props.style) {
+        el.style[sk] = props.style[sk];
+      }
+    } else if (k === 'class') {
+      el.className = props.class;
+    } else {
+      el.setAttribute(k, props[k]);
+    }
+  }
 }

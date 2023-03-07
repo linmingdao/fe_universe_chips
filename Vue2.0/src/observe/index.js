@@ -1,4 +1,4 @@
-import arrayPrototype from './array';
+import arrayPrototype from './array.js';
 
 // 这里才是响应式原理的核心
 export function observe(data) {

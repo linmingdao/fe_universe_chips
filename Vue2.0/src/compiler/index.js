@@ -127,11 +127,15 @@ function genProps(attrs) {
     // style="{color: red, background: blue}"
     if (attr.name === 'style') {
       let obj = {};
-      attr.value.split(';').reduce((memo, current) => {
-        let [key, value] = current.split(':');
-        memo[key] = value;
-        return memo;
-      }, obj);
+      attr.value
+        .split(/;\s/)
+        .map((item) => item.trim())
+        .filter((item) => item.length > 0)
+        .reduce((memo, current) => {
+          let [key, value] = current.split(/:\s/);
+          memo[key] = value;
+          return memo;
+        }, obj);
       attr.value = obj;
     }
 
