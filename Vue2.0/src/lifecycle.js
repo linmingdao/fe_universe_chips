@@ -2,9 +2,8 @@ import Watcher from './observe/watcher.js';
 import { patch } from './vdom/patch.js';
 
 export function lifeCycleMixin(Vue) {
-  // vm._update()：虚拟节点变成真实dom，渲染到页面上
+  // vm._update()：虚拟节点变成真实dom，渲染到页面上（将vnode渲染到el元素中）
   Vue.prototype._update = function (vnode) {
-    // 将vnode渲染到el元素中
     const vm = this;
 
     // 这个patch有两个作用：

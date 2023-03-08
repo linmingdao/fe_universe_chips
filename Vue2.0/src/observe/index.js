@@ -65,6 +65,8 @@ function defineReactive(data, key, value) {
 
   // 属性会全部被重写增加get和set进行数据劫持
   Object.defineProperty(data, key, {
+    configurable: true,
+    enumerable: true,
     // vm.xxx
     get() {
       // 此处不可写成 return data[key]，会死循环
