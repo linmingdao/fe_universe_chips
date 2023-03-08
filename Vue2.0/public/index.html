@@ -42,12 +42,24 @@
           n: { n: { n: 1 } },
           arr: [1, 2, 3, { a: 1 }],
         },
+        beforeCreate() {
+          console.log('user beforeCreate', this.age, this);
+        },
+        created() {
+          console.log('user created', this.age, this.$el, this);
+        },
+        beforeMount() {
+          console.log('user beforeMount', this.age, this.$el, this);
+        },
+        mounted() {
+          console.log('user mounted', this.age, this.$el, this);
+        },
       });
 
-      setTimeout(() => {
-        vm.name = '小明明名';
-        vm._update(vm._render()); // 这也是 forceUpdate 的原理
-      }, 3000);
+      // setTimeout(() => {
+      //   vm.name = '小明明名';
+      //   vm._update(vm._render()); // 这也是 forceUpdate 的原理
+      // }, 3000);
 
       // vm._data.arr.length = 0; // 数组的长度没有被监控，不会触发视图更新
       // vm._data.arr[0] = 2; // 数组的下标没有被监控，不会触发更新
