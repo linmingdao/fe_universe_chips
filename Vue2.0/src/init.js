@@ -8,7 +8,7 @@ export default function initMixin(Vue) {
     const vm = this;
 
     // this.$options = options; // vue中会判断，如果是$开头的属性不会被变成响应式
-    // this.$options = mergeOptions(Vue.options, options); // 合并用户的配置选型
+    // this.$options = mergeOptions(Vue.options, options); // 合并用户的配置选项
     this.$options = mergeOptions(vm.constructor.options, options); // 将用户传递的配置选项 和 全局的配置选项进行合并
     console.log('合并全局选型的$options:', this.$options);
 
@@ -29,20 +29,23 @@ export default function initMixin(Vue) {
 
   Vue.prototype.$mount = function (el) {
     const vm = this;
-    // 用户可能有传 render、template
     el = document.querySelector(el);
+
+    // 用户可能有传 render
     const options = vm.$options;
     if (!options.render) {
+      // 用户可能有传 template
       let template = options.template;
       if (!template) {
         template = el.outerHTML;
       }
+
       // 将template变成render函数
       const render = compileToFunction(template); // 开始模板编译
       options.render = render;
     }
+
     // 代码走到这里options.render就一定存在了
-    options.render;
     console.log('$mount 生成 render 函数后的实例情况:', vm);
 
     // 开始挂载流程

@@ -34,9 +34,13 @@ function gen(node) {
   // 文本节点
   else {
     let text = node.text;
+
+    // 不带表达式
     if (!defaultTagRE.test(text)) {
-      return `_v(${JSON.stringify(text)})`; // 不带表达式
-    } else {
+      return `_v(${JSON.stringify(text)})`;
+    }
+    // 带表达式的动态文本 {{name}}
+    else {
       let tokens = [];
       let match;
       // exec遇到全局匹配会有lastIndex问题，每次匹配前需要将lastIndex置为0
