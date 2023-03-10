@@ -61,7 +61,7 @@ function defineReactive(data, key, value) {
     get() {
       console.log('取值');
 
-      // 收集依赖ƒ
+      // 收集依赖
       if (Dep.target) dep.depend();
 
       // 此处不可写成 return data[key]，会死循环，所以借助闭包进行处理
