@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body style="background-color: #212121">
+    <div
+      id="app"
+      style="
+        color: #650505;
+        background: #adadff;
+        display: inline;
+        padding: 10px;
+      "
+    >
+      <span>hello: </span>{{name}}
+    </div>
+    <script src="../dist/vue.js"></script>
+    <script>
+      const vm = new Vue({
+        el: '#app',
+        data: {
+          age: 12,
+          name: '小红',
+          address: '福州',
+        },
+      });
+
+      setTimeout(() => (vm.name = '小明'), 3000);
+    </script>
+  </body>
+</html>
