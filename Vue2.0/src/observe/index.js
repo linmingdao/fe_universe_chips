@@ -59,8 +59,6 @@ function defineReactive(data, key, value) {
     enumerable: true,
     // vm.xxx
     get() {
-      console.log('取值');
-
       // 收集依赖
       if (Dep.target) dep.depend();
 
@@ -70,7 +68,6 @@ function defineReactive(data, key, value) {
     // vm.xx = 123
     set(newValue) {
       if (newValue === value) return;
-      console.log('更新值');
 
       // vm.xx = { a: 1 } 赋值一个对象，也可以有响应式
       observe(newValue);

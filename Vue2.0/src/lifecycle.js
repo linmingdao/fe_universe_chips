@@ -24,7 +24,9 @@ export function mountComponent(vm, el) {
   const updateComponent = () => {
     // vm._render()：生成虚拟节点
     // vm._update()：虚拟节点变成真实dom(dom diff)，渲染到页面上
-    vm._update(vm._render());
+    vm._update(
+      vm._render() /** 这里会发生从vm上的取值动作，触发 get，进而触发 依赖收集 */,
+    );
   };
 
   // 通过Watcher进行调用

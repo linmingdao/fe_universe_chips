@@ -16,9 +16,16 @@ class Watcher {
   }
 
   get() {
-    pushTarget(this); // 把watcher存起来
-    this.getter(); // 渲染watcher的执行
-    popTarget(); // 移除watcher
+    // 【利用js单线程】把watcher存在静态属性 Dep.target 上
+    pushTarget(this);
+
+    // 渲染watcher的执行 --> updateComponent
+    // --> vm._render() --> 触发get方法 --> 触发依赖收集 dep.depend() 将 watcher 收集到自己字段的 dep 的 subs 里
+    // --> vm._update()
+    this.getter();
+
+    // 移除watcher，Dep.target
+    popTarget();
   }
 
   update() {
