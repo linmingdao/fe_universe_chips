@@ -9,6 +9,7 @@ export function observe(data) {
   // 如果一个对象已经被观测过了（存在 __ob__），那么不要再次被观测
   if (data.__ob__) return;
 
+  // 观测对象
   return new Observer(data);
 }
 
@@ -49,15 +50,15 @@ class Observer {
 // 闭包，性能不好，原因在于所有的属性都被重新定义了一遍
 // 一上来需要将对象深度代理，性能差
 function defineReactive(data, key, value) {
+  // 该属性对应的依赖收集对象
   const dep = new Dep();
+
   // 递归代理属性
   observe(value);
 
-  // 属性会全部被重写增加get和set进行数据劫持
   Object.defineProperty(data, key, {
     configurable: true,
     enumerable: true,
-    // vm.xxx
     get() {
       // 收集依赖（Dep.targe静态属性 + js单线程）
       if (Dep.target) dep.depend();
@@ -65,7 +66,6 @@ function defineReactive(data, key, value) {
       // 此处不可写成 return data[key]，会死循环，所以借助闭包进行处理
       return value;
     },
-    // vm.xx = 123
     set(newValue) {
       if (newValue === value) return;
 

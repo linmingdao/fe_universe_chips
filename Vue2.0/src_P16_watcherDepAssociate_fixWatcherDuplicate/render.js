@@ -39,6 +39,7 @@ export function renderMixin(Vue) {
   };
 }
 
+// 编译模板生成的渲染函数
 // function anonymous() {
 //   with (this) { // render.call(vm)，with(this) --> name，age 会直接从 vm 上取，取值就会触发 get，从而触发依赖收集
 //     return _c(

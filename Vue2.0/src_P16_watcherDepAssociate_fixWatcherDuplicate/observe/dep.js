@@ -13,7 +13,7 @@ class Dep {
 
   // 收集依赖
   depend() {
-    // 让这个watcher记住当前的dep（也等于属性，即：watcher(渲染) <--> 属性）
+    // 让这个watcher记住当前的dep（也等于watcher记住了属性，即：watcher(渲染) <--> 属性）
     // this.subs.push(Dep.target); // 这样会重复添加watcher
     Dep.target.addDep(this);
   }

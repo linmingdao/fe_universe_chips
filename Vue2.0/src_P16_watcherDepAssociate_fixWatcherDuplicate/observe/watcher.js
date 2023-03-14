@@ -36,7 +36,7 @@ class Watcher {
     pushTarget(this);
 
     // 渲染watcher的执行 --> updateComponent -->
-    // --> vm._render() --> 触发get方法 --> 触发依赖收集 dep.depend() 将 watcher 收集到自己字段的 dep 的 subs 里 -->
+    // --> vm._render() --> 触发get方法 with(this) {...} --> 触发依赖收集 dep.depend() 将 watcher 收集到自己字段的 dep 的 subs 里 -->
     // --> vm._update()
     this.getter();
 
