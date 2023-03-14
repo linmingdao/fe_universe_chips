@@ -38,6 +38,7 @@ methods.forEach((method) => {
     // console.log('劫持数组方法', method, '触发视图更新');
     const result = oldArrayPrototype[method].call(this, ...args);
 
+    // 数组的派发更新
     ob.dep.notify();
 
     return result;
