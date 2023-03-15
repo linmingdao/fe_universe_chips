@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body style="background-color: #212121">
+    <!-- 提供数据映射的模板 -->
+    <div
+      id="app"
+      key="app"
+      class="my-app"
+      style="
+        color: #650505;
+        background: #adadff;
+        display: inline;
+        padding: 10px;
+      "
+      disabled
+    >
+      abc name: {{name}}, age: {{age}} def <span>hello world</span>
+    </div>
+    <script src="../dist/vue.js"></script>
+    <script>
+      // vue mvvm框架，基于MVC升级来的，但vue没有严格遵循mvvm，因为传统的mvvm框架不能手动操作数据（vue提供的ref可以操作组件数据）
+      // vue的核心：响应式数据原理
+      // react v框架（view层的框架），功能是将数据转换成视图，没有绑定操作，更新数据也是手动调用setState
+
+      // Vue.mixin用法
+      // 生命周期的合并策略，[beforeCreate, beforeCreate]
+      Vue.mixin({
+        a: 1,
+        beforeCreate() {
+          console.log('mixin 1 beforeCreate');
+        },
+      });
+      Vue.mixin({
+        b: 2,
+        beforeCreate() {
+          console.log('mixin 2 beforeCreate');
+        },
+      });
+      console.log(Vue.options);
+
+      // 响应式数据原理，vue2中采用defineProperty
+      // 监控数据的变化，数据变化了更新视图，用户给数据赋值了就触发视图更新
+      const vm = new Vue({
+        el: '#app',
+        // 提供映射视图的数据
+        // 根实例为什么可以写成对象，组件实例写成函数
+        data: {
+          name: '小红',
+          age: 12,
+          address: '福州',
+          n: { n: { n: 1 } },
+          arr: [1, 2, 3, { a: 1 }],
+        },
+        beforeCreate() {
+          console.log('user beforeCreate', this.age, this);
+        },
+        created() {
+          console.log('user created', this.age, this.$el, this);
+        },
+        beforeMount() {
+          console.log('user beforeMount', this.age, this.$el, this);
+        },
+        mounted() {
+          console.log('user mounted', this.age, this.$el, this);
+        },
+      });
+
+      setTimeout(() => {
+        vm.name = '小明';
+        setTimeout(() => {
+          vm.name = '小天';
+          setTimeout(() => {
+            vm.age = 16;
+          }, 3000);
+        }, 3000);
+        // vm._update(vm._render()); // 这也是 forceUpdate 的原理
+      }, 3000);
+
+      // vm._data.arr.length = 0; // 数组的长度没有被监控，不会触发视图更新
+      // vm._data.arr[0] = 2; // 数组的下标没有被监控，不会触发更新
+
+      // vm._data.arr.push(123); // vue只会劫持arr上的push方法，不会改变原生数组上的方法
+      // vm._data.arr.pop();
+      // vm._data.arr.push({ b: 2 }); // { b: 2 } 也需要变成响应式，数组里面的非对象类型（数组、对象）不会进行监测
+      // console.log(vm);
+      // console.log(vm.name);
+
+      // const vm2 = new Vue({
+      //   el: '#app',
+      //   data: function () {
+      //     return {
+      //       name: '小红',
+      //       age: 12,
+      //       address: '福州',
+      //     };
+      //   },
+      // });
+
+      // vm.$options.name = '小明';
+      // vm.name = '小明';
+    </script>
+  </body>
+</html>
