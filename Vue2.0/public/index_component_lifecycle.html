@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body style="background-color: #212121">
+    <div id="app1" style="color: #650505; background: #adadff; padding: 10px">
+      {{name}}
+      <my-component></my-component>
+    </div>
+    <script src="../dist/vue.js"></script>
+    <script>
+      // 全局组件
+      Vue.component('my-component', {
+        template: '<span style="color:red">hello: </span>',
+        created() {
+          console.info('global:my-component created');
+        },
+        mounted() {
+          console.info('global:my-component mounted');
+        },
+      });
+
+      const vm = new Vue({
+        el: '#app1',
+        data: {
+          name: '小红',
+        },
+        created() {
+          console.info('root created');
+        },
+        mounted() {
+          console.info('root mounted');
+        },
+        components: {
+          'my-component': {
+            template: '<span>hello: <world</world></span>',
+            created() {
+              console.info('my-component created');
+            },
+            mounted() {
+              console.info('my-component mounted');
+            },
+            components: {
+              world: {
+                template: '<span>world</span>',
+                created() {
+                  console.info('world created');
+                },
+                mounted() {
+                  console.info('world mounted');
+                },
+              },
+            },
+          },
+        },
+      });
+    </script>
+  </body>
+</html>
