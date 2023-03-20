@@ -12,7 +12,7 @@
 // 3、何为原型链：
 // 对象的__proto__属性保存着该对象的构造函数的prototype
 
-function Test() {}
+function Test() {} // new Function
 console.log(Test.prototype);
 
 const test = new Test();
