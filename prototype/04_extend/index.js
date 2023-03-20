@@ -12,6 +12,8 @@
 // 4、js分为函数对象和普通对象，每个对象都有__proto__属性，但是只有函数对象才有prototype属性
 // Object、Function都是js内置的函数, 类似的还有我们常用到的Array、RegExp、Date、Boolean、Number、String
 
+// 5、如果更改了构造函数的原型，记得同时提供该原型的构造函数(constructor)
+
 // Object 是对象的构造方法，是方法，所以有 prototype
 console.log(Object.prototype);
 console.log(Object.prototype.__proto__); // null
