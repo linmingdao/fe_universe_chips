@@ -25,7 +25,27 @@ var VueReactivity = (() => {
   });
 
   // packages/reactivity/src/effect.ts
-  function effect() {
+  var activeEffect;
+  var ReactiveEffect = class {
+    constructor(fn) {
+      this.fn = fn;
+      this.active = true;
+    }
+    run() {
+      if (!this.active)
+        return this.fn();
+      try {
+        debugger;
+        activeEffect = this;
+        return this.fn();
+      } finally {
+        activeEffect = void 0;
+      }
+    }
+  };
+  function effect(fn) {
+    const _effect = new ReactiveEffect(fn);
+    _effect.run();
   }
 
   // packages/shared/src/index.ts
@@ -38,6 +58,8 @@ var VueReactivity = (() => {
     get(target, key, receiver) {
       if (key === "__v_isReactive" /* IS_REACTIVE */)
         return true;
+      debugger;
+      activeEffect;
       return Reflect.get(target, key, receiver);
     },
     set(target, key, value, receiver) {
