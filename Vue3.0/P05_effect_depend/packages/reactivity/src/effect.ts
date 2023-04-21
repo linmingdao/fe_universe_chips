@@ -34,7 +34,7 @@ class ReactiveEffect {
 // 2、effect 跟 react useEffect 不一样的是，他会自动进行依赖收集（更加智能的依赖收集），而useEffect需要手动提供依赖（更加精细的依赖收集）
 // 3、effect可以嵌套写
 export function effect(fn: Function) {
-  // 创建响应式的effect
+  // 将回调函数fn转成响应式的（创建响应式的effect）
   const _effect = new ReactiveEffect(fn);
   // 默认先执行一次
   _effect.run();
@@ -55,6 +55,7 @@ export function track(target: Object, type: string, key: string) {
   let shouldTrack = !dep.has(activeEffect);
   if (shouldTrack) {
     dep.add(activeEffect);
+    // activeEffect和属性互相关联
     activeEffect.deps.push(dep);
   }
 }
