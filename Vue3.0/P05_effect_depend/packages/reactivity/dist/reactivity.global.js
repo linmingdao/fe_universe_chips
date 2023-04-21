@@ -29,23 +29,42 @@ var VueReactivity = (() => {
   var ReactiveEffect = class {
     constructor(fn) {
       this.fn = fn;
+      this.parent = null;
       this.active = true;
+      this.deps = [];
     }
     run() {
       if (!this.active)
         return this.fn();
       try {
-        debugger;
+        this.parent = activeEffect;
         activeEffect = this;
         return this.fn();
       } finally {
-        activeEffect = void 0;
+        activeEffect = this.parent;
+        this.parent = null;
       }
     }
   };
   function effect(fn) {
     const _effect = new ReactiveEffect(fn);
     _effect.run();
+  }
+  var targetMap = /* @__PURE__ */ new WeakMap();
+  function track(target, type, key) {
+    if (!activeEffect)
+      return;
+    let depsMap = targetMap.get(target);
+    if (!depsMap)
+      targetMap.set(target, depsMap = /* @__PURE__ */ new Map());
+    let dep = depsMap.get(key);
+    if (!dep)
+      dep.set(key, dep = /* @__PURE__ */ new Set());
+    let shouldTrack = !dep.has(activeEffect);
+    if (shouldTrack) {
+      dep.add(activeEffect);
+      activeEffect.deps.push(dep);
+    }
   }
 
   // packages/shared/src/index.ts
@@ -58,8 +77,7 @@ var VueReactivity = (() => {
     get(target, key, receiver) {
       if (key === "__v_isReactive" /* IS_REACTIVE */)
         return true;
-      debugger;
-      activeEffect;
+      track(target, "get", key);
       return Reflect.get(target, key, receiver);
     },
     set(target, key, value, receiver) {

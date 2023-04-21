@@ -3,8 +3,11 @@
 export let activeEffect;
 
 class ReactiveEffect {
+  public parent = null;
   // 这个effect默认是激活状态
-  active = true;
+  public active = true;
+  // effect记录被哪些属性收集了
+  public deps = [];
 
   constructor(public fn: Function) {}
 
@@ -14,13 +17,15 @@ class ReactiveEffect {
     if (!this.active) return this.fn();
 
     try {
-      debugger;
+      // 保证多个effect嵌套可以正确记录属性和effect的对应关系(之前是用栈进行实现)
+      this.parent = activeEffect;
       // 这里需要依赖收集，核心就是将当前的 effect 和 稍后渲染的属性关联在一起
       activeEffect = this;
       // 当稍后调用取值操作的时候，就可以获取到这个全局的 activeEffect
       return this.fn();
     } finally {
-      activeEffect = undefined;
+      activeEffect = this.parent;
+      this.parent = null;
     }
   }
 }
@@ -31,7 +36,25 @@ class ReactiveEffect {
 export function effect(fn: Function) {
   // 创建响应式的effect
   const _effect = new ReactiveEffect(fn);
-
   // 默认先执行一次
   _effect.run();
+}
+
+// 收集依赖，单向记录（属性记录effect）
+// 反向记录，effect也记录被哪些属性收集，这样的处理是方便清理
+const targetMap = new WeakMap();
+export function track(target: Object, type: string, key: string) {
+  if (!activeEffect) return;
+
+  let depsMap = targetMap.get(target);
+  if (!depsMap) targetMap.set(target, (depsMap = new Map()));
+
+  let dep = depsMap.get(key);
+  if (!dep) dep.set(key, (dep = new Set()));
+
+  let shouldTrack = !dep.has(activeEffect);
+  if (shouldTrack) {
+    dep.add(activeEffect);
+    activeEffect.deps.push(dep);
+  }
 }

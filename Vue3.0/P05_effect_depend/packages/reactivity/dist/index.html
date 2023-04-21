@@ -17,8 +17,6 @@
       // 定义响应式数据
       const state = reactive({ name: '小明', age: 13, address: { num: 517 } });
 
-      debugger;
-
       // 此effect函数会默认执行一次，对响应式数据取值（取值过程数据会依赖当前的effect）
       effect(() => {
         document.getElementById('app').innerHTML =
