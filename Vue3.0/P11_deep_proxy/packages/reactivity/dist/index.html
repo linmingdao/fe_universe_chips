@@ -14,7 +14,12 @@
 
       const { effect, reactive } = VueReactivity;
 
-      const state = reactive({ flag: true, name: '小明', age: 13 });
+      const state = reactive({
+        flag: true,
+        name: '小明',
+        age: 13,
+        address: { num: 10 },
+      });
 
       let runner = effect(
         () => {
@@ -34,11 +39,7 @@
         },
       );
 
-      state.age = 1000;
-      state.age = 2000;
-      state.age = 3000;
-      state.age = 4000;
-      state.age = 5000;
+      console.log(state.address);
     </script>
   </body>
 </html>
