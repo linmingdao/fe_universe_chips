@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "outDir": "dist", // tsc编译输出的目录
+    "sourceMap": true,
+    "target": "es2016",
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "strict": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true, // 允许通过es6语法引入commonjs模块
+    "jsx": "preserve",
+    "lib": ["ESNext", "DOM"],
+    "baseUrl": ".",
+    "paths": {
+      "@vue/*": ["packages/*/src"]
+    }
+  }
+}

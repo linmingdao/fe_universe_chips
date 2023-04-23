@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script src="./reactivity.global.js"></script>
+    <script>
+      let waiting = false;
+
+      const { effect, reactive } = VueReactivity;
+
+      const state = reactive({ flag: true, name: '小明', age: 13 });
+
+      let runner = effect(
+        () => {
+          document.getElementById('app').innerHTML = state.age;
+        },
+        {
+          // 用户可以控制何时更新
+          scheduler() {
+            if (!waiting) {
+              waiting = true;
+              setTimeout(() => {
+                runner();
+                waiting = false;
+              }, 1000);
+            }
+          },
+        },
+      );
+
+      state.age = 1000;
+      state.age = 2000;
+      state.age = 3000;
+      state.age = 4000;
+      state.age = 5000;
+    </script>
+  </body>
+</html>
