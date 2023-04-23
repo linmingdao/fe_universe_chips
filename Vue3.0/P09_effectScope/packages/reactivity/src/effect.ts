@@ -40,6 +40,13 @@ class ReactiveEffect {
       this.parent = null;
     }
   }
+
+  stop() {
+    if (this.active) {
+      this.active = false;
+      cleanupEffect(this);
+    }
+  }
 }
 
 // 1、fn可以根据状态变化重新执行
@@ -50,6 +57,12 @@ export function effect(fn: Function) {
   const _effect = new ReactiveEffect(fn);
   // 默认先执行一次
   _effect.run();
+
+  const runner = _effect.run.bind(_effect);
+  // @ts-ignore
+  runner.effect = _effect;
+
+  return runner;
 }
 
 // 收集依赖，单向记录（属性记录effect）
