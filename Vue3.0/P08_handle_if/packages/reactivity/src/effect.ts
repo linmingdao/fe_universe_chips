@@ -2,12 +2,20 @@
 // @ts-ignore
 export let activeEffect;
 
+function cleanupEffect(effect: ReactiveEffect) {
+  const { deps } = effect;
+  for (let i = 0; i < deps.length; i++) {
+    deps[i].delete(effect); // 解除effect，重新依赖收集
+  }
+  effect.deps.length = 0;
+}
+
 class ReactiveEffect {
   public parent = null;
   // 这个effect默认是激活状态
   public active = true;
   // effect记录被哪些属性收集了
-  public deps = [];
+  public deps: Set<ReactiveEffect>[] = [];
 
   constructor(public fn: Function) {}
 
@@ -21,6 +29,10 @@ class ReactiveEffect {
       this.parent = activeEffect;
       // 这里需要依赖收集，核心就是将当前的 effect 和 稍后渲染的属性关联在一起
       activeEffect = this;
+
+      // 执行前需要将之前收集的内容清空
+      cleanupEffect(this);
+
       // 当稍后调用取值操作的时候，就可以获取到这个全局的 activeEffect
       return this.fn();
     } finally {
@@ -74,10 +86,14 @@ export function trigger(
   // 说明触发的值不再模板中使用
   if (!depsMap) return;
 
-  const effects = depsMap.get(key);
-  effects &&
+  let effects = depsMap.get(key);
+
+  // 永远在执行之前拷贝一份来执行，不要关联引用
+  if (effects) {
+    effects = new Set(effects);
     effects.forEach((effect: ReactiveEffect) => {
       // 在执行effect的时候，发现【正在执行的】和【待执行的】effect是同一个，那么需要规避，避免无限循环
       if (activeEffect !== effect) effect.run();
     });
+  }
 }
