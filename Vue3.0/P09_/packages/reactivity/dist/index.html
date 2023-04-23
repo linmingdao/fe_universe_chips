@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script src="./reactivity.global.js"></script>
+    <script>
+      const { effect, reactive } = VueReactivity;
+
+      const state = reactive({ flag: true, name: '小明', age: 13 });
+
+      effect(() => {
+        console.log('render');
+        document.getElementById('app').innerHTML = state.flag
+          ? state.name
+          : state.age;
+      });
+
+      setTimeout(() => {
+        state.flag = false;
+        setTimeout(() => {
+          console.log('修改name，原则上不更新');
+          state.name = '小红';
+        }, 1000);
+      }, 1000);
+    </script>
+  </body>
+</html>
