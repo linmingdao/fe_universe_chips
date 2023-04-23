@@ -14,18 +14,17 @@
 
       const state = reactive({ flag: true, name: '小明', age: 13 });
 
-      effect(() => {
-        console.log('render');
-        document.getElementById('app').innerHTML = state.flag
-          ? state.name
-          : state.age;
+      let runner = effect(() => {
+        document.getElementById('app').innerHTML = state.age;
       });
 
+      // effectScope
+      runner.effect.stop();
+
       setTimeout(() => {
-        state.flag = false;
+        state.age = 1000;
         setTimeout(() => {
-          console.log('修改name，原则上不更新');
-          state.name = '小红';
+          runner();
         }, 1000);
       }, 1000);
     </script>
