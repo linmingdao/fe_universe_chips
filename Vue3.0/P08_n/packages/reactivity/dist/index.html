@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script src="./reactivity.global.js"></script>
+    <script>
+      // 1、effect: 代表副作用函数，如果此函数依赖的数据发生变化，会重新执行回调函数，并且effect支持嵌套
+      // 2、reactive: 将数据变成响应式（proxy）
+      const { effect, reactive } = VueReactivity;
+
+      // 定义响应式数据
+      const state = reactive({ name: '小明', age: 13, address: { num: 517 } });
+
+      // 此effect函数会默认执行一次，对响应式数据取值（取值过程数据会依赖当前的effect）
+      effect(() => {
+        state.age = Math.random(); // 死循环：ximum call stack size exceeded
+        document.getElementById('app').innerHTML = `${state.name},${state.age}`;
+      });
+
+      // 稍后name和age变了会重新执行effect函数
+      setTimeout(() => {
+        state.age = 14;
+        state.name = '小红';
+      }, 1000);
+    </script>
+  </body>
+</html>
