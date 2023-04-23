@@ -50,12 +50,13 @@ export function track(target: Object, type: string, key: string) {
   if (!depsMap) targetMap.set(target, (depsMap = new Map()));
 
   let dep = depsMap.get(key);
-  if (!dep) dep.set(key, (dep = new Set()));
+  if (!dep) depsMap.set(key, (dep = new Set()));
 
   let shouldTrack = !dep.has(activeEffect);
   if (shouldTrack) {
+    // 属性记录effect
     dep.add(activeEffect);
-    // activeEffect和属性互相关联
+    // effect和属性互相关联
     activeEffect.deps.push(dep);
   }
 }

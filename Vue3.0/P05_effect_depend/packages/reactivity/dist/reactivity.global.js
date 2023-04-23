@@ -59,7 +59,7 @@ var VueReactivity = (() => {
       targetMap.set(target, depsMap = /* @__PURE__ */ new Map());
     let dep = depsMap.get(key);
     if (!dep)
-      dep.set(key, dep = /* @__PURE__ */ new Set());
+      depsMap.set(key, dep = /* @__PURE__ */ new Set());
     let shouldTrack = !dep.has(activeEffect);
     if (shouldTrack) {
       dep.add(activeEffect);
