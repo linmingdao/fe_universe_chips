@@ -1,6 +1,7 @@
+import { Target } from './reactive';
+
 // 利用js单线程、es5 模块输出的是引用(可以时时获取最新的值)
-// @ts-ignore
-export let activeEffect;
+export let activeEffect: ReactiveEffect | undefined;
 
 function cleanupEffect(effect: ReactiveEffect) {
   const { deps } = effect;
@@ -10,19 +11,28 @@ function cleanupEffect(effect: ReactiveEffect) {
   effect.deps.length = 0;
 }
 
-class ReactiveEffect {
-  public parent = null;
-  // 这个effect默认是激活状态
-  public active = true;
-  // effect记录被哪些属性收集了
-  public deps: Set<ReactiveEffect>[] = [];
+export type Dep = Set<ReactiveEffect>;
 
-  constructor(public fn: Function, public scheduler: Function) {}
+export type EffectScheduler = (...args: any[]) => any;
+
+class ReactiveEffect<T = any> {
+  parent: ReactiveEffect | undefined = undefined;
+  // 这个effect默认是激活状态
+  active = true;
+  // effect记录被哪些属性收集了
+  deps: Dep[] = [];
+
+  constructor(
+    public fn: () => T,
+    public scheduler: EffectScheduler | null = null,
+  ) {}
 
   // 执行effect
   run() {
     // 这里表示如果是非激活情况，只需要执行函数，不需要依赖收集
-    if (!this.active) return this.fn();
+    if (!this.active) {
+      return this.fn();
+    }
 
     try {
       // 保证多个effect嵌套可以正确记录属性和effect的对应关系(之前是用栈进行实现)
@@ -37,38 +47,63 @@ class ReactiveEffect {
       return this.fn();
     } finally {
       activeEffect = this.parent;
-      this.parent = null;
+      this.parent = undefined;
     }
   }
 
   stop() {
     if (this.active) {
-      this.active = false;
       cleanupEffect(this);
+      this.active = false;
     }
   }
 }
 
-// 1、fn可以根据状态变化重新执行
-// 2、effect 跟 react useEffect 不一样的是，他会自动进行依赖收集（更加智能的依赖收集），而useEffect需要手动提供依赖（更加精细的依赖收集）
-// 3、effect可以嵌套写
-export function effect(fn: Function, options: any) {
+export interface ReactiveEffectOptions {
+  scheduler?: EffectScheduler;
+}
+
+export interface ReactiveEffectRunner<T = any> {
+  (): T;
+  effect: ReactiveEffect;
+}
+
+/**
+ * 1、fn可以根据状态变化重新执行
+ * 2、effect 跟 react useEffect 不一样的是，他会自动进行依赖收集（更加智能的依赖收集），而useEffect需要手动提供依赖（更加精细的依赖收集）
+ * 3、effect可以嵌套写
+ */
+export function effect<T = any>(
+  fn: () => T,
+  options: ReactiveEffectOptions,
+): ReactiveEffectRunner {
   // 将回调函数fn转成响应式的（创建响应式的effect）
   const _effect = new ReactiveEffect(fn, options.scheduler);
   // 默认先执行一次
   _effect.run();
 
-  const runner = _effect.run.bind(_effect);
-  // @ts-ignore
+  const runner = _effect.run.bind(_effect) as ReactiveEffectRunner;
   runner.effect = _effect;
 
   return runner;
 }
 
-// 收集依赖，单向记录（属性记录effect）
-// 反向记录，effect也记录被哪些属性收集，这样的处理是方便清理
-const targetMap = new WeakMap();
-export function track(target: Object, type: string, key: string) {
+export const enum TrackOpTypes {
+  GET = 'get',
+}
+
+export const enum TriggerOpTypes {
+  SET = 'set',
+}
+
+type KeyToDepMap = Map<any, Dep>;
+const targetMap = new WeakMap<any, KeyToDepMap>();
+
+/**
+ * 1、收集依赖，单向记录（属性记录effect）
+ * 2、反向记录，effect也记录被哪些属性收集，这样的处理是方便清理
+ */
+export function track(target: Target, type: TrackOpTypes, key: unknown) {
   if (!activeEffect) return;
 
   let depsMap = targetMap.get(target);
@@ -88,11 +123,11 @@ export function track(target: Object, type: string, key: string) {
 
 // 派发更新
 export function trigger(
-  target: any,
-  type: string,
-  key: string,
-  value: any,
-  oldValue: any,
+  target: object,
+  type: TriggerOpTypes,
+  key: string | symbol,
+  newValue: unknown,
+  oldValue: unknown,
 ) {
   const depsMap = targetMap.get(target);
 

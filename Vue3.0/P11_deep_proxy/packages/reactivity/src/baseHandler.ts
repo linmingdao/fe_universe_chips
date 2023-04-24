@@ -1,20 +1,15 @@
 import { isObject } from '@vue/shared';
-import { track, trigger } from './effect';
-import { reactive } from './reactive';
+import { TrackOpTypes, TriggerOpTypes, track, trigger } from './effect';
+import { ReactiveFlags, Target, reactive } from './reactive';
 
-export const enum ReactiveFlags {
-  IS_REACTIVE = '__v_isReactive',
-}
-
-export const mutableHandler = {
-  // @ts-ignore
-  get(target: Object, key: string, receiver: ProxyConstructor) {
+export const mutableHandler: ProxyHandler<object> = {
+  get(target: Target, key: string | symbol, receiver: object) {
     if (key === ReactiveFlags.IS_REACTIVE) return true;
 
     // 依赖收集
-    track(target, 'get', key);
+    track(target, TrackOpTypes.GET, key);
 
-    let res = Reflect.get(target, key, receiver);
+    const res = Reflect.get(target, key, receiver);
 
     if (isObject(res)) {
       return reactive(res);
@@ -22,12 +17,14 @@ export const mutableHandler = {
 
     return res;
   },
-  set(target: any, key: string, value: any, receiver: ProxyConstructor) {
+  set(target: Target, key: string | symbol, value: unknown, receiver: object) {
     const oldValue = target[key];
     const result = Reflect.set(target, key, value, receiver);
 
     // 派发更新
-    if (oldValue !== value) trigger(target, 'set', key, value, oldValue);
+    if (oldValue !== value) {
+      trigger(target, TriggerOpTypes.SET, key, value, oldValue);
+    }
 
     return result;
   },
