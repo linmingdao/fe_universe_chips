@@ -18,11 +18,19 @@
       // 定义响应式数据
       const data = { name: '小明', age: 13, address: { num: 517 } };
       const state1 = reactive(data);
-      const state2 = reactive(state1);
+
+      const state2 = reactive(data);
+      console.log(state1 === state2); // true
+
+      // const state3 = reactive(state1);
+      // console.log(state1 === state3); // true
+
+      // console.log(data); // 不会有 __v_isReactive 字段
+      // console.log(state3); // proxy
+
       // const state = shallowReactive({ name: '小明', age: 13, address: { num: 517 } });
       // const state = readonly({ name: '小明', age: 13, address: { num: 517 } });
       // const state = shallowReadonly({ name: '小明', age: 13, address: { num: 517 } });
-      console.log(state1 === state2); // Proxy
 
       // 此effect函数会默认执行一次，对响应式数据取值（取值过程数据会依赖当前的effect）
       //   effect(() => {

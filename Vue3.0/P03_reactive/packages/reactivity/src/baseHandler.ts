@@ -4,7 +4,10 @@ export const enum ReactiveFlags {
 
 export const mutableHandler = {
   get(target: Object, key: string, receiver: ProxyConstructor) {
-    if (key === ReactiveFlags.IS_REACTIVE) return true;
+    if (key === ReactiveFlags.IS_REACTIVE) {
+      debugger;
+      return true;
+    }
     return Reflect.get(target, key, receiver);
   },
   set(target: Object, key: string, value: any, receiver: ProxyConstructor) {

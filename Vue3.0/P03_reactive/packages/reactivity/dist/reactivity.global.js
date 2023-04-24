@@ -36,8 +36,10 @@ var VueReactivity = (() => {
   // packages/reactivity/src/baseHandler.ts
   var mutableHandler = {
     get(target, key, receiver) {
-      if (key === "__v_isReactive" /* IS_REACTIVE */)
+      if (key === "__v_isReactive" /* IS_REACTIVE */) {
+        debugger;
         return true;
+      }
       return Reflect.get(target, key, receiver);
     },
     set(target, key, value, receiver) {
@@ -53,8 +55,10 @@ var VueReactivity = (() => {
     if (target["__v_isReactive" /* IS_REACTIVE */])
       return target;
     const exisitingProxy = reactiveMap.get(target);
-    if (exisitingProxy)
+    if (exisitingProxy) {
+      debugger;
       return exisitingProxy;
+    }
     const proxy = new Proxy(target, mutableHandler);
     reactiveMap.set(target, proxy);
     return proxy;
