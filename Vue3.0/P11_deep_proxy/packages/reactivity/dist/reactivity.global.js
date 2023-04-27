@@ -34,16 +34,17 @@ var VueReactivity = (() => {
     effect2.deps.length = 0;
   }
   var ReactiveEffect = class {
-    constructor(fn, scheduler) {
+    constructor(fn, scheduler = null) {
       this.fn = fn;
       this.scheduler = scheduler;
-      this.parent = null;
+      this.parent = void 0;
       this.active = true;
       this.deps = [];
     }
     run() {
-      if (!this.active)
+      if (!this.active) {
         return this.fn();
+      }
       try {
         this.parent = activeEffect;
         activeEffect = this;
@@ -51,13 +52,13 @@ var VueReactivity = (() => {
         return this.fn();
       } finally {
         activeEffect = this.parent;
-        this.parent = null;
+        this.parent = void 0;
       }
     }
     stop() {
       if (this.active) {
-        this.active = false;
         cleanupEffect(this);
+        this.active = false;
       }
     }
   };
@@ -78,17 +79,25 @@ var VueReactivity = (() => {
     let dep = depsMap.get(key);
     if (!dep)
       depsMap.set(key, dep = /* @__PURE__ */ new Set());
+    trackEffects(dep);
+  }
+  function trackEffects(dep) {
+    if (!activeEffect)
+      return;
     let shouldTrack = !dep.has(activeEffect);
     if (shouldTrack) {
       dep.add(activeEffect);
       activeEffect.deps.push(dep);
     }
   }
-  function trigger(target, type, key, value, oldValue) {
+  function trigger(target, type, key, newValue, oldValue) {
     const depsMap = targetMap.get(target);
     if (!depsMap)
       return;
     let effects = depsMap.get(key);
+    triggerEffects(effects);
+  }
+  function triggerEffects(effects) {
     if (effects) {
       effects = new Set(effects);
       effects.forEach((effect2) => {
@@ -113,8 +122,8 @@ var VueReactivity = (() => {
     get(target, key, receiver) {
       if (key === "__v_isReactive" /* IS_REACTIVE */)
         return true;
-      track(target, "get", key);
-      let res = Reflect.get(target, key, receiver);
+      track(target, "get" /* GET */, key);
+      const res = Reflect.get(target, key, receiver);
       if (isObject(res)) {
         return reactive(res);
       }
@@ -123,8 +132,9 @@ var VueReactivity = (() => {
     set(target, key, value, receiver) {
       const oldValue = target[key];
       const result = Reflect.set(target, key, value, receiver);
-      if (oldValue !== value)
-        trigger(target, "set", key, value, oldValue);
+      if (oldValue !== value) {
+        trigger(target, "set" /* SET */, key, value, oldValue);
+      }
       return result;
     }
   };

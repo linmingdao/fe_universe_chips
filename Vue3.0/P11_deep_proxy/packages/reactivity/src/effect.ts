@@ -112,6 +112,12 @@ export function track(target: Target, type: TrackOpTypes, key: unknown) {
   let dep = depsMap.get(key);
   if (!dep) depsMap.set(key, (dep = new Set()));
 
+  trackEffects(dep);
+}
+
+export function trackEffects(dep: Set<ReactiveEffect>) {
+  if (!activeEffect) return;
+
   let shouldTrack = !dep.has(activeEffect);
   if (shouldTrack) {
     // 属性记录effect
@@ -137,6 +143,10 @@ export function trigger(
   let effects = depsMap.get(key);
 
   // 永远在执行之前拷贝一份来执行，不要关联引用
+  triggerEffects(effects);
+}
+
+export function triggerEffects(effects: Set<ReactiveEffect> | undefined) {
   if (effects) {
     effects = new Set(effects);
     effects.forEach((effect: ReactiveEffect) => {
