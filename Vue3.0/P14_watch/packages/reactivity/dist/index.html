@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script src="./reactivity.global.js"></script>
+    <script>
+      const { effect, reactive, computed } = VueReactivity;
+
+      const app = document.getElementById('app');
+
+      const state = reactive({ firstname: '李', lastname: '明' });
+
+      // const fullname = computed({
+      //   get() {
+      //     // 依赖的属性有变化才会重新执行，不变化就不会重新执行
+      //     console.log('runner');
+      //     return state.firstname + state.lastname;
+      //   },
+      //   set(newValue) {
+      //     console.log(newValue);
+      //   },
+      // });
+
+      // 简写形式
+      const fullname = computed(() => {
+        // 依赖的属性有变化才会重新执行，不变化就不会重新执行
+        console.log('runner');
+        return state.firstname + state.lastname;
+      });
+
+      // console.log(fullname.value);
+      // console.log(fullname.value);
+      // console.log(fullname.value);
+
+      effect(() => {
+        app.innerHTML = fullname.value;
+      });
+
+      setTimeout(() => {
+        state.firstname = '小';
+      }, 3000);
+    </script>
+  </body>
+</html>
