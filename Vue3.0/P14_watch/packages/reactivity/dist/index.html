@@ -10,40 +10,26 @@
     <div id="app"></div>
     <script src="./reactivity.global.js"></script>
     <script>
-      const { effect, reactive, computed } = VueReactivity;
+      const { effect, reactive, watch } = VueReactivity;
 
-      const app = document.getElementById('app');
+      const state = reactive({ name: '小明', address: { num: 123 } });
 
-      const state = reactive({ firstname: '李', lastname: '明' });
-
-      // const fullname = computed({
-      //   get() {
-      //     // 依赖的属性有变化才会重新执行，不变化就不会重新执行
-      //     console.log('runner');
-      //     return state.firstname + state.lastname;
-      //   },
-      //   set(newValue) {
-      //     console.log(newValue);
-      //   },
-      // });
-
-      // 简写形式
-      const fullname = computed(() => {
-        // 依赖的属性有变化才会重新执行，不变化就不会重新执行
-        console.log('runner');
-        return state.firstname + state.lastname;
+      // 监控数据变化，数据变化就重新执行
+      watch(state, function (newValue, oldValue) {
+        console.log(newValue, oldValue);
       });
 
-      // console.log(fullname.value);
-      // console.log(fullname.value);
-      // console.log(fullname.value);
-
-      effect(() => {
-        app.innerHTML = fullname.value;
-      });
+      // 监控一个函数，函数的返回值就是一个老值，更新后可以获取新值
+      watch(
+        () => state.address.num,
+        function (newValue, oldValue) {
+          console.log(newValue, oldValue);
+        },
+      );
 
       setTimeout(() => {
-        state.firstname = '小';
+        state.name = '小红';
+        state.address.num = 456;
       }, 3000);
     </script>
   </body>
