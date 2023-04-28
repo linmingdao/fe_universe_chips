@@ -75,10 +75,10 @@ export interface ReactiveEffectRunner<T = any> {
  */
 export function effect<T = any>(
   fn: () => T,
-  options: ReactiveEffectOptions,
+  options?: ReactiveEffectOptions,
 ): ReactiveEffectRunner {
   // 将回调函数fn转成响应式的（创建响应式的effect）
-  const _effect = new ReactiveEffect(fn, options.scheduler);
+  const _effect = new ReactiveEffect(fn, options?.scheduler);
   // 默认先执行一次
   _effect.run();
 
@@ -115,6 +115,15 @@ export function track(target: Target, type: TrackOpTypes, key: unknown) {
   trackEffects(dep);
 }
 
+// targetMap = {
+//   {name:'小明',age:13,address:{num:14}}: {
+//     name: [activeEffect1, activeEffect2],
+//     age: [activeEffect1, activeEffect2]
+//   },
+//   {num: 14}: {
+//     num: [activeEffect1, activeEffect2]
+//   }
+// }
 export function trackEffects(dep: Set<ReactiveEffect>) {
   if (!activeEffect) return;
 

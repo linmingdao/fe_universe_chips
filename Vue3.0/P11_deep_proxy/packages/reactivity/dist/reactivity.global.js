@@ -63,7 +63,7 @@ var VueReactivity = (() => {
     }
   };
   function effect(fn, options) {
-    const _effect = new ReactiveEffect(fn, options.scheduler);
+    const _effect = new ReactiveEffect(fn, options == null ? void 0 : options.scheduler);
     _effect.run();
     const runner = _effect.run.bind(_effect);
     runner.effect = _effect;
