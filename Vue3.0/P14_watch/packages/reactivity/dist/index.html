@@ -21,7 +21,7 @@
 
       // 监控一个函数，函数的返回值就是一个老值，更新后可以获取新值
       watch(
-        () => state.address.num, // 为什么得是函数，因为如果是：state.address.num，那么相当于watch(123,cb)
+        () => state.address.num, // 为什么得是函数，因为如果是：state.address.num，那么相当于 watch(123,cb) , watch 常量这就没意义了
         function (newValue, oldValue) {
           console.log(newValue, oldValue);
         },
