@@ -22,7 +22,8 @@ var VueReactivity = (() => {
   __export(src_exports, {
     computed: () => computed,
     effect: () => effect,
-    reactive: () => reactive
+    reactive: () => reactive,
+    watch: () => watch
   });
 
   // packages/reactivity/src/effect.ts
@@ -115,8 +116,13 @@ var VueReactivity = (() => {
 
   // packages/shared/src/index.ts
   var isObject = (value) => typeof value === "object" && value !== null;
+  var isPlainObject = (val) => toTypeString(val) === "[object Object]";
   var isFunction = (value) => typeof value === "function";
   var isArray = Array.isArray;
+  var objectToString = Object.prototype.toString;
+  var toTypeString = (value) => objectToString.call(value);
+  var isMap = (val) => toTypeString(val) === "[object Map]";
+  var isSet = (val) => toTypeString(val) === "[object Set]";
 
   // packages/reactivity/src/baseHandler.ts
   var mutableHandler = {
@@ -153,6 +159,9 @@ var VueReactivity = (() => {
     const proxy = new Proxy(target, mutableHandler);
     reactiveMap.set(target, proxy);
     return proxy;
+  }
+  function isReactive(value) {
+    return !!(value && value["__v_isReactive" /* IS_REACTIVE */]);
   }
 
   // packages/reactivity/src/computed.ts
@@ -195,6 +204,58 @@ var VueReactivity = (() => {
     }
     return new ComputedRefImpl(getter, setter);
   };
+
+  // packages/reactivity/src/ref.ts
+  function isRef(r) {
+    return !!(r && r.__v_isRef === true);
+  }
+
+  // packages/reactivity/src/watch.ts
+  function traverse(value, seen) {
+    if (!isObject(value) || value["__v_skip" /* SKIP */]) {
+      return value;
+    }
+    seen = seen || /* @__PURE__ */ new Set();
+    if (seen.has(value)) {
+      return value;
+    }
+    seen.add(value);
+    if (isRef(value)) {
+      traverse(value.value, seen);
+    } else if (isArray(value)) {
+      for (let i = 0; i < value.length; i++) {
+        traverse(value[i], seen);
+      }
+    } else if (isSet(value) || isMap(value)) {
+      value.forEach((v) => {
+        traverse(v, seen);
+      });
+    } else if (isPlainObject(value)) {
+      for (const key in value) {
+        traverse(value[key], seen);
+      }
+    }
+    return value;
+  }
+  function watch(source, cb) {
+    let getter;
+    if (isReactive(source)) {
+      getter = () => traverse(source);
+    } else if (isFunction(source)) {
+      getter = source;
+    } else {
+      console.error("watch\u4E0D\u652F\u6301\u8BE5source\u7C7B\u578B", source);
+      return;
+    }
+    let oldValue;
+    const job = () => {
+      const newValue = effect2.run();
+      cb(newValue, oldValue);
+      oldValue = newValue;
+    };
+    const effect2 = new ReactiveEffect(getter, job);
+    oldValue = effect2.run();
+  }
   return __toCommonJS(src_exports);
 })();
 //# sourceMappingURL=reactivity.global.js.map

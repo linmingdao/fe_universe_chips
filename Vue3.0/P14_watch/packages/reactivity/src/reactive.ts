@@ -2,7 +2,11 @@ import { isObject } from '@vue/shared';
 import { mutableHandler } from './baseHandler';
 
 export const enum ReactiveFlags {
+  SKIP = '__v_skip',
   IS_REACTIVE = '__v_isReactive',
+  IS_READONLY = '__v_isReadonly',
+  IS_SHALLOW = '__v_isShallow',
+  RAW = '__v_raw',
 }
 
 export interface Target {
@@ -29,4 +33,8 @@ export function reactive(target: any) {
   reactiveMap.set(target, proxy);
 
   return proxy;
+}
+
+export function isReactive(value: any) {
+  return !!(value && value[ReactiveFlags.IS_REACTIVE]);
 }
